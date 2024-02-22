@@ -34,7 +34,7 @@ export const GetAllBookCategories = async () => {
     method: "GET",
     credentials: "include",
     headers: {
-      Cookie: document.cookie,
+      cookie: document.cookie,
     },
   }).then((response) => response.json());
 };
@@ -42,6 +42,7 @@ export const GetAllBookCategories = async () => {
 export const GetBookCategory = async (id) => {
   return await fetch(`${WebApi}/get-book-category/${id}`, {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       Cookie: document.cookie,

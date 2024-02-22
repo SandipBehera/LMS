@@ -16,6 +16,8 @@ import {
   Input,
   Dropdown,
   Tooltip,
+  Card,
+  Container,
 } from "reactstrap";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -42,19 +44,23 @@ const ViewAllBookCategory = () => {
   });
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
 
-  useEffect(async () => {
-    await GetAllBookCategories().then((response) => {
-      setData(response.categories);
-    });
+  const [loading, setLoading] = useState(true); // New loading state
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await GetAllBookCategories();
+        setData(response.categories);
+        setLoading(false); // Set loading to false once data is fetched
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        // Handle error, show an error message, etc.
+        setLoading(false); // Set loading to false in case of an error
+      }
+    }
+    fetchData();
   }, []);
-  const filteredData = data.filter(
-    (item) =>
-      !item.hidden &&
-      (item.category_description
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-        item.category_name.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+
   const toggleStatusDropdown = () => {
     setStatusDropdownOpen(!statusDropdownOpen);
   };
@@ -114,7 +120,7 @@ const ViewAllBookCategory = () => {
       [name]: value,
     }));
   };
-  console.log("first", editedData);
+
   //filter functionality
 
   //book will disapear
@@ -184,104 +190,111 @@ const ViewAllBookCategory = () => {
         mainTitle="View All Category"
         title="View All Category"
       />
+      <Card>
+        <Container>
+          <div className="d-flex justify-content-end align-items-center m-4">
+            <Button color="info" className="mx-4">
+              Bulk Upload
+            </Button>
+            <FiDownload
+              id="downloadIcon"
+              className="mx-4 text-primary"
+              style={{ fontSize: "1.8rem" }}
+            />
+            <Tooltip
+              placement="bottom"
+              isOpen={tooltipOpen}
+              target="downloadIcon"
+              toggle={toggleTooltip}
+            >
+              Download
+            </Tooltip>
+            <Input
+              className="mx-4"
+              type="text"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ width: "250px" }} // Adjust the width as needed
+            />
+          </div>
+          <DataTable
+            columns={columns}
+            data={data}
+            pagination
+            noDataComponent={
+              loading ? <div>Loading...</div> : <div>No values found</div>
+            }
+            theme="solarized"
+            width="300px"
+          />
 
-      <div className="d-flex justify-content-end align-items-center m-4">
-        <Button color="info" className="mx-4">
-          Bulk Upload
-        </Button>
-        <FiDownload
-          id="downloadIcon"
-          className="mx-4 text-primary"
-          style={{ fontSize: "1.8rem" }}
-        />
-        <Tooltip
-          placement="bottom"
-          isOpen={tooltipOpen}
-          target="downloadIcon"
-          toggle={toggleTooltip}
-        >
-          Download
-        </Tooltip>
-        <Input
-          className="mx-4"
-          type="text"
-          placeholder="Search..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ width: "250px" }} // Adjust the width as needed
-        />
-      </div>
-      <DataTable
-        columns={columns}
-        data={filteredData}
-        pagination
-        noDataComponent={<div>No values found</div>}
-      />
-
-      {/* Edit Modal */}
-      <Modal isOpen={editModalOpen} toggle={toggleEditModal}>
-        <ModalHeader toggle={toggleEditModal}>Edit Book</ModalHeader>
-        <ModalBody>
-          {/* Add your form for editing here */}
-          <Form>
-            <FormGroup>
-              <Label for="bookCategory">Book Category</Label>
-              <Input
-                type="text"
-                name="category_name"
-                id="bookCategory"
-                placeholder="Enter book category_name"
-                value={editedData.category_name}
-                onChange={handleEditableFormChange}
-              />
-            </FormGroup>
-            <FormGroup>
-              <Label for="category_description">Description</Label>
-              <Input
-                type="textarea"
-                name="category_description"
-                id="category_description"
-                placeholder="Enter book description"
-                value={editedData.category_description}
-                onChange={handleEditableFormChange}
-              />
-            </FormGroup>
-            <FormGroup>
-              <Label for="status">Status</Label>
-              <Dropdown
-                isOpen={statusDropdownOpen}
-                toggle={toggleStatusDropdown}
-              >
-                <DropdownToggle caret>{editedData.status}</DropdownToggle>
-                <DropdownMenu>
-                  <DropdownItem
-                    onClick={() =>
-                      setEditedData({ ...editedData, status: "active" })
-                    }
+          {/* Edit Modal */}
+          <Modal isOpen={editModalOpen} toggle={toggleEditModal}>
+            <ModalHeader toggle={toggleEditModal}>Edit Book</ModalHeader>
+            <ModalBody>
+              {/* Add your form for editing here */}
+              <Form>
+                <FormGroup>
+                  <Label for="bookCategory">Book Category</Label>
+                  <Input
+                    type="text"
+                    name="category_name"
+                    id="bookCategory"
+                    placeholder="Enter book category_name"
+                    value={editedData.category_name}
+                    onChange={handleEditableFormChange}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <Label for="category_description">Description</Label>
+                  <Input
+                    type="textarea"
+                    name="category_description"
+                    id="category_description"
+                    placeholder="Enter book description"
+                    value={editedData.category_description}
+                    onChange={handleEditableFormChange}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <Label for="status">Status</Label>
+                  <Dropdown
+                    isOpen={statusDropdownOpen}
+                    toggle={toggleStatusDropdown}
                   >
-                    Active
-                  </DropdownItem>
-                  <DropdownItem
-                    onClick={() =>
-                      setEditedData({ ...editedData, status: "inactive" })
-                    }
-                  >
-                    Inactive
-                  </DropdownItem>
-                </DropdownMenu>
-              </Dropdown>
-            </FormGroup>
-          </Form>
-        </ModalBody>
-        <ModalFooter>
-          <Button color="primary" onClick={saveChanges}>
-            Save Changes
-          </Button>
-          <Button color="secondary" onClick={toggleEditModal}>
-            Cancel
-          </Button>
-        </ModalFooter>
-      </Modal>
+                    <DropdownToggle caret>{editedData.status}</DropdownToggle>
+                    <DropdownMenu>
+                      <DropdownItem
+                        onClick={() =>
+                          setEditedData({ ...editedData, status: "active" })
+                        }
+                      >
+                        Active
+                      </DropdownItem>
+                      <DropdownItem
+                        onClick={() =>
+                          setEditedData({ ...editedData, status: "inactive" })
+                        }
+                      >
+                        Inactive
+                      </DropdownItem>
+                    </DropdownMenu>
+                  </Dropdown>
+                </FormGroup>
+              </Form>
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" onClick={saveChanges}>
+                Save Changes
+              </Button>
+              <Button color="secondary" onClick={toggleEditModal}>
+                Cancel
+              </Button>
+            </ModalFooter>
+          </Modal>
+        </Container>
+      </Card>
     </Fragment>
   );
 };
