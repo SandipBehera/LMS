@@ -1,12 +1,13 @@
 import React from "react";
-import { LocalApi } from "../api";
+import { LocalApi, WebApi } from "../api";
+import { branchID } from "../Constant";
 
 export const Add_Book_Category = async (
   category_name,
   category_description,
   status
 ) => {
-  return await fetch(`${LocalApi}/create-book-category`, {
+  return await fetch(`${WebApi}/create-book-category`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -15,6 +16,7 @@ export const Add_Book_Category = async (
       category_name: category_name,
       category_description: category_description,
       status: status,
+      branch_id: branchID,
     }),
   })
     .then((response) => {
@@ -26,13 +28,13 @@ export const Add_Book_Category = async (
 };
 
 export const GetAllBookCategories = async () => {
-  return await fetch(`${LocalApi}/get-all-book-categories`, {
+  return await fetch(`${WebApi}/get-all-book-categories/${branchID}`, {
     method: "GET",
   }).then((response) => response.json());
 };
 
 export const GetBookCategory = async (id) => {
-  return await fetch(`${LocalApi}/get-book-category/${id}`, {
+  return await fetch(`${WebApi}/get-book-category/${id}`, {
     method: "POST",
   }).then((response) => response.json());
 };
@@ -43,7 +45,7 @@ export const UpdateBookCategory = async (
   category_description,
   status
 ) => {
-  return await fetch(`${LocalApi}/update-book-category/${id}`, {
+  return await fetch(`${WebApi}/update-book-category/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -52,6 +54,7 @@ export const UpdateBookCategory = async (
       category_name: category_name,
       category_description: category_description,
       status: status,
+      branch_id: branchID,
     }),
   }).then((response) => {
     return response.json();
