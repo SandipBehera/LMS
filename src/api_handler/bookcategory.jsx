@@ -9,8 +9,10 @@ export const Add_Book_Category = async (
 ) => {
   return await fetch(`${WebApi}/create-book-category`, {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
+      Cookie: document.cookie,
     },
     body: JSON.stringify({
       category_name: category_name,
@@ -30,12 +32,20 @@ export const Add_Book_Category = async (
 export const GetAllBookCategories = async () => {
   return await fetch(`${WebApi}/get-all-book-categories/${branchID}`, {
     method: "GET",
+    credentials: "include",
+    headers: {
+      Cookie: document.cookie,
+    },
   }).then((response) => response.json());
 };
 
 export const GetBookCategory = async (id) => {
   return await fetch(`${WebApi}/get-book-category/${id}`, {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: document.cookie,
+    },
   }).then((response) => response.json());
 };
 
@@ -47,8 +57,10 @@ export const UpdateBookCategory = async (
 ) => {
   return await fetch(`${WebApi}/update-book-category/${id}`, {
     method: "PUT",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
+      Cookie: document.cookie,
     },
     body: JSON.stringify({
       category_name: category_name,
@@ -64,8 +76,10 @@ export const UpdateBookCategory = async (
 export const UploadBulkCategory = async (data) => {
   return await fetch(`${LocalApi}/upload-bulk-category`, {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
+      cookie: document.cookie,
     },
     body: JSON.stringify(data),
   }).then((response) => response.json());

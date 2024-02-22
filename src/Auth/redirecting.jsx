@@ -6,33 +6,33 @@ const RedirectionPage = () => {
   const navigation = useNavigate();
   const { userId, campus_name, branchId } = useParams();
   const [loading, setLoading] = useState(true);
-  const data = {
-    data: {
-      user_id: userId,
-      campus_name: campus_name,
-      user_type: "admin",
-      branch_id: branchId,
-      name: "admin",
-    },
-    status: "success",
-  };
+  // const data = {
+  //   data: {
+  //     user_id: userId,
+  //     campus_name: campus_name,
+  //     user_type: "admin",
+  //     branch_id: branchId,
+  //     name: "admin",
+  //   },
+  //   status: "success",
+  // };
 
   useEffect(() => {
     // Simulate an API call to check if the user exists in the database
     const checkUserInDatabase = async () => {
       try {
         // Replace the following with your actual API call to check user existence
-        // const response = await fetch(
-        //   `${WebApi}/users/${userId}/campus/${campus_name}`,
-        //   {
-        //     method: "GET",
-        //     credentials: "include",
-        //     headers: {
-        //       Cookie: document.cookie,
-        //     },
-        //   }
-        // );
-        // const data = await response.json();
+        const response = await fetch(
+          `${WebApi}/users/${userId}/campus/${campus_name}`,
+          {
+            method: "GET",
+            credentials: "include",
+            headers: {
+              Cookie: document.cookie,
+            },
+          }
+        );
+        const data = await response.json();
         // console.log(data);
         if (data.status === "success") {
           // User exists, redirect to the dashboard
