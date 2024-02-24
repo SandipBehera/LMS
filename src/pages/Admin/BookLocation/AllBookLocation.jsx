@@ -1,10 +1,11 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 
 import DataTable from 'react-data-table-component';
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Form, FormGroup, Input, Label, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
 import { FiDownload } from "react-icons/fi";
 import { Breadcrumbs } from '../../../AbstractElements';
 import {Link} from "react-router-dom"
+import { GetAllBookLocation } from '../../../api_handler/booklocation';
  
 const AllBookLocation = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -20,53 +21,25 @@ const AllBookLocation = () => {
   });
   const userType=localStorage.getItem("userType");
   const branchId= localStorage.getItem("branchId");
-  const [data, setData] = useState([
-    {
-      id: 1,
-      Block: "A Block",
-      Floor: "2nd",
-      Shelfname: "3rd shelfe",
-      Rackname: "4th rack ",
-      status: "Active",
-      hidden: false,
-    },
-    {
-      id: 2,
-      Block: "B block",
-      Floor: "3rd ",
-      Shelfname: "2nd shelfe ",
-      Rackname: "4th rack ",
-      status: "Active",
-      hidden: false,
-    },
-    {
-      id: 3,
-      Block: "c Block",
-      Floor: "1st floor ",
-      Shelfname: "4th shelfe ",
-      Rackname: "2nd rack  ",
-      status: "Active",
-      hidden: false,
-    },
-    {
-      id: 4,
-      Block: "BB Scheme",
-      Floor: "it is a schr book ",
-      Shelfname: "it is a schr book ",
-      Rackname: "it is a schr book ",
-      status: "Active",
-      hidden: false,
-    },
-    {
-      id: 5,
-      Block: "D",
-      Floor: "5th floor ",
-      Shelfname: "it is a schr book ",
-      Rackname: "it is a schr book ",
-      status: "Active",
-      hidden: false,
-    },
-  ]);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true); // New loading state
+
+useEffect(() => {
+  async function fetchData() {
+    try {
+      const response = await GetAllBookLocation(); // Call GetAllBookLocation function
+      console.log("Location",response);
+      setData(response.categories);
+      setLoading(false); // Set loading to false once data is fetched
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      // Handle error, show an error message, etc.
+      setLoading(false); // Set loading to false in case of an error
+    }
+  }
+  fetchData();
+}, []);
+
  
   const columns = [
     {
@@ -190,7 +163,7 @@ const AllBookLocation = () => {
       
      
 </div>
-      <DataTable columns={columns} data={data.filter(item => !item.hidden)} />
+      <DataTable columns={columns} data={data} pagination />
  
       {/* Edit Modal */}
       <Modal isOpen={editModalOpen} toggle={toggleEditModal}>
