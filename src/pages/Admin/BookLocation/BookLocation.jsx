@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -12,6 +12,8 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { Breadcrumbs } from "../../../AbstractElements";
 import { faFileImport } from "@fortawesome/free-solid-svg-icons";
+import { Add_Book_Location, GetBlock } from "../../../api_handler/booklocation";
+import { toast } from "react-toastify";
 
 export default function BookLocation() {
   const {
@@ -22,9 +24,41 @@ export default function BookLocation() {
   } = useForm();
 
   const [resetFlag, setResetFlag] = useState(false);
+  const userTypes = localStorage.getItem("userType");
+  const userId = localStorage.getItem("userId");
+  const [block, setBlock] = useState([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await GetBlock(); // Call GetAllBookLocation function
+        console.log(response.categories);
+        setBlock(response.categories);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        // Handle error, show an error message, etc.
+      }
+    }
+    fetchData();
+  }, []);
 
   const onSubmit = (data) => {
-    console.log(data);
+    Add_Book_Location(
+      data.blockName,
+      data.rack,
+      data.shelfName,
+      data.subRack,
+      data.status
+    ).then((res) => {
+      if (res.status === "success") {
+        toast.success(res.message);
+        window.location.replace(
+          `/lms/${userTypes}/${userId}/all-book-location`
+        );
+      } else if (res.status === "error") {
+        toast.error(res.message);
+      }
+    });
   };
 
   const handleCancel = () => {
@@ -67,12 +101,18 @@ export default function BookLocation() {
                       <>
                         <select {...field} className="form-control">
                           <option value="">Select Block</option>
-                          <option value="active">Block 1/Floor 1</option>
-                          <option value="inactive">Block 2/Floor 2</option>
+                          {block.map((b) => {
+                            return (
+                              <option key={b.id} value={b.block_name}>
+                                {b.block_name}
+                              </option>
+                            );
+                          })}
                         </select>
                       </>
                     )}
                   />
+
                   {errors.blockName?.type === "required" && (
                     <p className="text-danger">Block name is required</p>
                   )}
@@ -91,11 +131,15 @@ export default function BookLocation() {
                     rules={{
                       required: true,
                       maxLength: 10,
-                      pattern: /^[A-Za-z]+$/i,
+                      pattern: /^[a-zA-Z0-9 !@#$%^&*)(]{2,20}$/i,
                     }}
                     render={({ field }) => (
                       <>
-                        <input {...field} className="form-control" maxLength={10} />
+                        <input
+                          {...field}
+                          className="form-control"
+                          maxLength={10}
+                        />
                       </>
                     )}
                   />
@@ -127,11 +171,15 @@ export default function BookLocation() {
                     rules={{
                       required: true,
                       maxLength: 10,
-                      pattern: /^[A-Za-z]+$/i,
+                      // pattern: /^[a-zA-Z0-9 !@#$%^&*)(]{2,20}$/i,
                     }}
                     render={({ field }) => (
                       <>
-                        <input {...field} className="form-control" maxLength={10} />
+                        <input
+                          {...field}
+                          className="form-control"
+                          maxLength={10}
+                        />
                       </>
                     )}
                   />
@@ -160,11 +208,15 @@ export default function BookLocation() {
                     rules={{
                       required: true,
                       maxLength: 10,
-                      pattern: /^[A-Za-z]+$/i,
+                      // pattern: /^[a-zA-Z0-9 !@#$%^&*)(]{2,20}$/i,
                     }}
                     render={({ field }) => (
                       <>
-                        <input {...field} className="form-control" maxLength={10} />
+                        <input
+                          {...field}
+                          className="form-control"
+                          maxLength={10}
+                        />
                       </>
                     )}
                   />
