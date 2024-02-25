@@ -46,15 +46,15 @@ export default function BookLocation() {
     Add_Book_Location(
       data.blockName,
       data.rack,
-      data.status,
-      data.subRack
+      data.shelfName,
+      data.subRack,
+      data.status
     ).then((res) => {
-      console.log("first", res);
       if (res.status === "success") {
         toast.success(res.message);
-        // window.location.replace(
-        //   `/lms/${userTypes}/${userId}/all-book-location`
-        // );
+        window.location.replace(
+          `/lms/${userTypes}/${userId}/all-book-location`
+        );
       } else if (res.status === "error") {
         toast.error(res.message);
       }
@@ -131,7 +131,7 @@ export default function BookLocation() {
                     rules={{
                       required: true,
                       maxLength: 10,
-                      pattern: /^[A-Za-z]+$/i,
+                      pattern: /^[a-zA-Z0-9 !@#$%^&*)(]{2,20}$/i,
                     }}
                     render={({ field }) => (
                       <>
@@ -171,7 +171,7 @@ export default function BookLocation() {
                     rules={{
                       required: true,
                       maxLength: 10,
-                      pattern: /^[A-Za-z]+$/i,
+                      // pattern: /^[a-zA-Z0-9 !@#$%^&*)(]{2,20}$/i,
                     }}
                     render={({ field }) => (
                       <>
@@ -208,7 +208,7 @@ export default function BookLocation() {
                     rules={{
                       required: true,
                       maxLength: 10,
-                      pattern: /^[A-Za-z]+$/i,
+                      // pattern: /^[a-zA-Z0-9 !@#$%^&*)(]{2,20}$/i,
                     }}
                     render={({ field }) => (
                       <>
