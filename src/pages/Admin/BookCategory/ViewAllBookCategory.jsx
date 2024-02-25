@@ -50,6 +50,7 @@ const ViewAllBookCategory = () => {
     async function fetchData() {
       try {
         const response = await GetAllBookCategories();
+        console.log(response)
         setData(response.categories);
         setLoading(false); // Set loading to false once data is fetched
       } catch (error) {
@@ -142,14 +143,18 @@ const ViewAllBookCategory = () => {
       name: "S.no",
       selector: (row, index) => index + 1,
       sortable: true,
+      maxWidth:"150px"
     },
     {
       name: "Book Category",
       selector: (row) => row.category_name,
+      maxWidth:"250px"
     },
     {
       name: "Description",
       selector: (row) => row.category_description,
+      maxWidth:"250px"
+
     },
     {
       name: "Status",
@@ -225,8 +230,7 @@ const ViewAllBookCategory = () => {
             noDataComponent={
               loading ? <div>Loading...</div> : <div>No values found</div>
             }
-            theme="solarized"
-            width="300px"
+            responsive={true}
           />
 
           {/* Edit Modal */}

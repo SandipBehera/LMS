@@ -50,3 +50,30 @@ export const Add_Book_Location = async (
     }).then((response) => response.json());
   };
   
+  export const UpdateBookLocation = async (
+    id,
+    block,
+    shelf_name,
+    rack_name,
+    sub_rack_name,
+    status,
+  ) => {
+    return await fetch(`${WebApi}/update-book-location/${id}`, {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: document.cookie,
+      },
+      body: JSON.stringify({
+        block:block,
+        shelf_name:shelf_name,
+        rack_name:rack_name,
+        sub_rack_name:sub_rack_name,
+        status: status,
+        branch_id: branchID,
+      }),
+    }).then((response) => {
+      return response.json();
+    });
+  };
