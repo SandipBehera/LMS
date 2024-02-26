@@ -1,13 +1,16 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import { Button, Card, Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Container, CardBody, CardHeader } from "reactstrap";
 import { Breadcrumbs } from "../../../AbstractElements";
 import { Link } from "react-router-dom";
+import { getAllBooks } from "../../../api_handler/addbookapi";
+
+
 
 
 const ViewAllBooks = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
-
+  const [books, setBooks] = useState([]);
   
 
   const toggleDropdown = (id) => {
@@ -16,7 +19,23 @@ const ViewAllBooks = () => {
   const userType=localStorage.getItem("userType");
   const branchId= localStorage.getItem("branchId");
 
-  // Define columns
+  //fetch books
+  useEffect(() => {
+    async function fetchBooks() {
+      try {
+        const booksData = await getAllBooks(); 
+        console.log(booksData);
+        setBooks(booksData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+     
+      }
+    }
+    fetchBooks();
+  }, []);
+  
+ 
+
   const columns = [
     {
       name: "S. No",
@@ -137,7 +156,6 @@ const ViewAllBooks = () => {
             </CardHeader>
             <CardBody>
             <DataTable columns={columns} data={dummyData} pagination/>
-
 
             </CardBody>
 

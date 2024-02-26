@@ -16,6 +16,7 @@ import BookAdding from "./Components/BookAdding";
 import { IoIosAddCircle, IoMdClose } from "react-icons/io";
 import { useLocation } from "react-router-dom";
 import { MdCancel } from "react-icons/md";
+import { GetBlock, addBook } from "../../../api_handler/addbookapi";
 
 export default function AddBook() {
   const location = useLocation();
@@ -32,24 +33,73 @@ export default function AddBook() {
 
   const [resetFlag, setResetFlag] = useState(false);
   const [books, setBooks] = useState([bookDetails || {}]);
-
+  const[block,setBlock]=useState([])
   const [mode, setMode] = useState("add");
 
   const userType=localStorage.getItem("userType");
   const branchId = localStorage.getItem("branchId");
   console.log(userType,branchId)
 
+  //getblock
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await GetBlock(); 
+        console.log(response.categories);
+        setBlock(response.categories);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+     
+      }
+    }
+    fetchData();
+  }, []);
+
   useEffect(() => {
     if (location.pathname === `/${userType}/${branchId}/edit-book`) {
       console.log(location.pathname)
 
       setMode("edit");
-    }
-    
+    }  
   }, [location.pathname]);
   
   const onSubmit = (data) => {
-    console.log(data);
+     addBook(
+      data.book_name,
+    data.book_location,
+    data.book_category,
+    data.book_author,
+    data.book_publisher,
+    data.book_vendor,
+    data.book_isbn_code,
+    data.published_year,
+    data.program,
+    data.department,
+    data.program_year,
+    data.book_volume,
+    data.pages,
+    data.subject,
+    data.language,
+    data.book_edition,
+    data.book_material_type,
+    data.book_sub_material_type,
+    data.book_class_no,
+    data.book_year_of_publication,
+    data.book_page_no,
+    data.book_place_publication,
+    data.book_accession_register,
+    data.date_of_entry,
+    data.financial_year,
+     ).then((res) => {
+      if (res.status === "success") {
+        toast.success(res.message);
+        window.location.replace(
+          `/lms/${userTypes}/${userId}/view-books`
+        );
+      } else if (res.status === "error") {
+        toast.error(res.message);
+      }
+    });
   };
   const handleAddBook = async () => {
     const isValid = await trigger(); // Trigger validation for all fields
