@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import {
   Button,
@@ -21,13 +21,14 @@ import {
 } from "reactstrap";
 import { toast } from "react-toastify";
 import { Breadcrumbs } from "../../../AbstractElements";
-import { GetAllBookLocation, GetBlock, UpdateBookLocation } from '../../../api_handler/booklocation';
-
-
+import {
+  GetAllBookLocation,
+  GetBlock,
+  UpdateBookLocation,
+} from "../../../api_handler/booklocation";
 
 export default function AllBookLocation() {
-
-  const [data, setData]=useState([]);
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true); // New loading state
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
@@ -42,18 +43,15 @@ export default function AllBookLocation() {
   });
   const [block, setBlock] = useState([]);
 
-
-
   useEffect(() => {
     async function fetchLocations() {
       try {
-        const response = await GetAllBookLocation(); 
-        console.log(response)
+        const response = await GetAllBookLocation();
         setData(response.location);
-        setLoading(false); 
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
-        setLoading(false); 
+        setLoading(false);
       }
     }
     fetchLocations();
@@ -62,7 +60,7 @@ export default function AllBookLocation() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await GetBlock(); 
+        const response = await GetBlock();
         setBlock(response.categories);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -70,10 +68,6 @@ export default function AllBookLocation() {
     }
     fetchData();
   }, []);
-
-
-
-
 
   const toggleStatusDropdown = () => {
     setStatusDropdownOpen(!statusDropdownOpen);
@@ -91,8 +85,8 @@ export default function AllBookLocation() {
     setEditedData({
       block: bookToEdit.block,
       shelf_name: bookToEdit.shelf_name,
-      rack_name:bookToEdit.rack_name,
-      sub_rack_name:bookToEdit.sub_rack_name,
+      rack_name: bookToEdit.rack_name,
+      sub_rack_name: bookToEdit.sub_rack_name,
       status: bookToEdit.status,
     });
     toggleEditModal();
@@ -107,8 +101,8 @@ export default function AllBookLocation() {
       ...data[index],
       block: editedData.block,
       shelf_name: editedData.shelf_name,
-      rack_name:editedData.rack_name,
-      sub_rack_name:editedData.sub_rack_name,
+      rack_name: editedData.rack_name,
+      sub_rack_name: editedData.sub_rack_name,
       status: editedData.status,
     };
 
@@ -130,7 +124,6 @@ export default function AllBookLocation() {
       }
     });
   };
-  
 
   const columns = [
     {
@@ -172,7 +165,7 @@ export default function AllBookLocation() {
           <DropdownMenu>
             <DropdownItem onClick={() => handleEdit(row.id)}>Edit</DropdownItem>
             <DropdownItem onClick={() => handleStatus(row.id)}>
-              {row.status==="active"?"Inactive" : "Active"}
+              {row.status === "active" ? "Inactive" : "Active"}
             </DropdownItem>
           </DropdownMenu>
         </Dropdown>
@@ -180,9 +173,13 @@ export default function AllBookLocation() {
     },
   ];
 
-
   return (
     <Fragment>
+      <Breadcrumbs
+        parent="Book Location"
+        mainTitle="View All Location"
+        title="View All Location"
+      />
       <Card>
         <Container>
           <DataTable
@@ -220,25 +217,11 @@ export default function AllBookLocation() {
                   </Input>
                 </FormGroup>
                 <FormGroup>
-                  <Label for="Rackname">Rack Name</Label>
+                  <Label for="Rackname">Shelf Name</Label>
                   <Input
                     type="text"
                     name="rack_name"
                     id="Rackname"
-                    placeholder="Enter rack name"
-                    value={editedData.rack_name}
-                    onChange={(e) =>
-                      setEditedData({ ...editedData, rack_name: e.target.value })
-                    }
-                  />
-                </FormGroup>
-                
-                <FormGroup>
-                  <Label for="Shelfname">Shelfname</Label>
-                  <Input
-                    type="text"
-                    name="shelf_name"
-                    id="Shelfname"
                     placeholder="Enter shelf name"
                     value={editedData.shelf_name}
                     onChange={(e) =>
@@ -249,7 +232,24 @@ export default function AllBookLocation() {
                     }
                   />
                 </FormGroup>
-                
+
+                <FormGroup>
+                  <Label for="Shelfname">Rack Name</Label>
+                  <Input
+                    type="text"
+                    name="shelf_name"
+                    id="Shelfname"
+                    placeholder="Enter rack name"
+                    value={editedData.rack_name}
+                    onChange={(e) =>
+                      setEditedData({
+                        ...editedData,
+                        rack_name: e.target.value,
+                      })
+                    }
+                  />
+                </FormGroup>
+
                 <FormGroup>
                   <Label for="Floor">Sub Rack Name</Label>
                   <Input
@@ -259,7 +259,10 @@ export default function AllBookLocation() {
                     placeholder="Enter floor name"
                     value={editedData.sub_rack_name}
                     onChange={(e) =>
-                      setEditedData({ ...editedData, sub_rack_name: e.target.value })
+                      setEditedData({
+                        ...editedData,
+                        sub_rack_name: e.target.value,
+                      })
                     }
                   />
                 </FormGroup>

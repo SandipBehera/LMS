@@ -45,8 +45,8 @@ export default function BookLocation() {
   const onSubmit = (data) => {
     Add_Book_Location(
       data.blockName,
-      data.rack,
       data.shelfName,
+      data.rack,
       data.subRack,
       data.status
     ).then((res) => {
