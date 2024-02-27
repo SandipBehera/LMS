@@ -45,7 +45,7 @@ export default function AddBook() {
     async function fetchData() {
       try {
         const response = await GetBlock(); 
-        console.log(response.categories);
+        console.log("block are",response.categories);
         setBlock(response.categories);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -64,42 +64,64 @@ export default function AddBook() {
   }, [location.pathname]);
   
   const onSubmit = (data) => {
-     addBook(
-      data.book_name,
-    data.book_location,
-    data.book_category,
-    data.book_author,
-    data.book_publisher,
-    data.book_vendor,
-    data.book_isbn_code,
-    data.published_year,
-    data.program,
-    data.department,
-    data.program_year,
-    data.book_volume,
-    data.pages,
-    data.subject,
-    data.language,
-    data.book_edition,
-    data.book_material_type,
-    data.book_sub_material_type,
-    data.book_class_no,
-    data.book_year_of_publication,
-    data.book_page_no,
-    data.book_place_publication,
-    data.book_accession_register,
-    data.date_of_entry,
-    data.financial_year,
-     ).then((res) => {
-      if (res.status === "success") {
-        toast.success(res.message);
-        window.location.replace(
-          `/lms/${userTypes}/${userId}/view-books`
-        );
-      } else if (res.status === "error") {
-        toast.error(res.message);
-      }
-    });
+    console.log("b4 submit",data)
+    data.books.map((item)=>{
+      
+      addBook(
+        item.title,
+      item.bookLocation,
+      item.categoryName,
+      item.author,
+      item.publisher,
+      item.vendor,
+      item.isbnCode,
+      item.publicationYear,
+      item.program,
+      item.dept,
+      item.programYear,
+      item.volume,
+      item.pages,
+      item.subject,
+      item.languages,
+      item.edition,
+      item.material,
+      item.subMaterial,
+      item.classNo,
+      item.publicationYear,
+      item.pageNo,
+      item.publicationPlace,
+      item.Accession,
+      item.entryDate,
+      item.financialYear,
+       ).then((res) => {
+        console.log(res)
+        if (res.status === "success") {
+          toast.success(res.message);
+         
+          window.location.replace(
+            `/lms/${userType}/${userId}/view-books`
+          );
+          console.log("Submitted data:", data);
+        } else if (res.status === "error") {
+          toast.error(res.message);
+        }
+      });
+    })
+   
+  
+  // .then((res)=>{
+  //   console.log(res.json)
+  //   if (res.status === "success") {
+  //            toast.success(res.message);
+           
+  //            window.location.replace(
+  //              `/lms/${userType}/${userId}/view-books`
+  //            );
+            
+   
+  // }}).catch((err)=>{
+  //   console.log(err)
+  // })
   };
   const handleAddBook = async () => {
     const isValid = await trigger(); // Trigger validation for all fields
@@ -187,10 +209,10 @@ export default function AddBook() {
       setValue("Accession", "")
     }, 0);
   };
-  //Dummy Department
+  //Dummy dept
   const deptOptions = [
-    { value: "Department1", label: "Department 1" },
-    { value: "Department2", label: "Department 2" },
+    { value: "dept1", label: "dept 1" },
+    { value: "dept2", label: "dept 2" },
   ];
   //Dummy Program Year
   const programYear = [
@@ -236,12 +258,13 @@ export default function AddBook() {
                         <>
                           <select {...field} className="form-control">
                             <option value="">Select Book Location</option>
-                            <option value="Block1/Floor1">
-                              Block 1/Floor 1
-                            </option>
-                            <option value="Block2/Floor2">
-                              Block 2/Floor 2
-                            </option>
+                            {/* <option>Select block</option> */}
+                    {block.map((b) => (
+                      <option key={b.id} value={b.block_name}>
+                        {b.block_name}
+                      </option>
+                    ))}
+                           
                           </select>
                         </>
                       )}
@@ -502,7 +525,7 @@ export default function AddBook() {
                       className="font-size font-weight-bold"
                       style={{ fontWeight: "bold" }}
                     >
-                      Department
+                      dept
                     </Label>
                     <Controller
                       name={`books[${index}].dept`}
@@ -517,7 +540,7 @@ export default function AddBook() {
                     />
                     {errors?.books?.[index]?.dept?.type === "required" && (
                       <p className="text-danger">
-                        At least one department is required
+                        At least one dept is required
                       </p>
                     )}
                   </Col>
