@@ -17,6 +17,7 @@ import { IoIosAddCircle, IoMdClose } from "react-icons/io";
 import { useLocation } from "react-router-dom";
 import { MdCancel } from "react-icons/md";
 import { GetBlock, addBook } from "../../../api_handler/addbookapi";
+import { toast } from "react-toastify";
 
 export default function AddBook() {
   const location = useLocation();
@@ -33,23 +34,22 @@ export default function AddBook() {
 
   const [resetFlag, setResetFlag] = useState(false);
   const [books, setBooks] = useState([bookDetails || {}]);
-  const[block,setBlock]=useState([])
+  const [block, setBlock] = useState([]);
   const [mode, setMode] = useState("add");
 
-  const userType=localStorage.getItem("userType");
+  const userType = localStorage.getItem("userType");
   const branchId = localStorage.getItem("branchId");
-  console.log(userType,branchId)
+  console.log(userType, branchId);
 
   //getblock
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await GetBlock(); 
-        console.log("block are",response.categories);
+        const response = await GetBlock();
+        console.log("block are", response.categories);
         setBlock(response.categories);
       } catch (error) {
         console.error("Error fetching data:", error);
-     
       }
     }
     fetchData();
@@ -57,77 +57,72 @@ export default function AddBook() {
 
   useEffect(() => {
     if (location.pathname === `/${userType}/${branchId}/edit-book`) {
-      console.log(location.pathname)
+      console.log(location.pathname);
 
       setMode("edit");
-    }  
+    }
   }, [location.pathname]);
-  
+
   const onSubmit = (data) => {
-    console.log("b4 submit",data)
-    data.books.map((item)=>{
-      
+    console.log("b4 submit", data);
+    data.books.map((item) => {
       addBook(
         item.title,
-      item.bookLocation,
-      item.categoryName,
-      item.author,
-      item.publisher,
-      item.vendor,
-      item.isbnCode,
-      item.publicationYear,
-      item.program,
-      item.dept,
-      item.programYear,
-      item.volume,
-      item.pages,
-      item.subject,
-      item.languages,
-      item.edition,
-      item.material,
-      item.subMaterial,
-      item.classNo,
-      item.publicationYear,
-      item.pageNo,
-      item.publicationPlace,
-      item.Accession,
-      item.entryDate,
-      item.financialYear,
-       ).then((res) => {
-        console.log(res)
+        item.bookLocation,
+        item.categoryName,
+        item.author,
+        item.publisher,
+        item.vendor,
+        item.isbnCode,
+        item.publicationYear,
+        item.program,
+        item.dept,
+        item.programYear,
+        item.volume,
+        item.pages,
+        item.subject,
+        item.languages,
+        item.edition,
+        item.material,
+        item.subMaterial,
+        item.classNo,
+        item.publicationYear,
+        item.pageNo,
+        item.publicationPlace,
+        item.Accession,
+        item.entryDate,
+        item.financialYear
+      ).then((res) => {
+        console.log(res);
         if (res.status === "success") {
           toast.success(res.message);
-         
-          window.location.replace(
-            `/lms/${userType}/${userId}/view-books`
-          );
+
+          window.location.replace(`/lms/${userType}/${userId}/view-books`);
           console.log("Submitted data:", data);
         } else if (res.status === "error") {
           toast.error(res.message);
         }
       });
-    })
-   
-  
-  // .then((res)=>{
-  //   console.log(res.json)
-  //   if (res.status === "success") {
-  //            toast.success(res.message);
-           
-  //            window.location.replace(
-  //              `/lms/${userType}/${userId}/view-books`
-  //            );
-            
-   
-  // }}).catch((err)=>{
-  //   console.log(err)
-  // })
+    });
+
+    // .then((res)=>{
+    //   console.log(res.json)
+    //   if (res.status === "success") {
+    //            toast.success(res.message);
+
+    //            window.location.replace(
+    //              `/lms/${userType}/${userId}/view-books`
+    //            );
+
+    // }}).catch((err)=>{
+    //   console.log(err)
+    // })
   };
   const handleAddBook = async () => {
     const isValid = await trigger(); // Trigger validation for all fields
     if (isValid) {
       setBooks([...books, {}]); // Add a new empty book object if all fields are valid
-    }// Add a new empty book object
+    } // Add a new empty book object
     console.log("hello");
   };
 
@@ -205,8 +200,8 @@ export default function AddBook() {
       setValue("vendor", "");
       setValue("volume", "");
       setValue("material", "");
-      setValue("subject","");
-      setValue("Accession", "")
+      setValue("subject", "");
+      setValue("Accession", "");
     }, 0);
   };
   //Dummy dept
@@ -220,8 +215,6 @@ export default function AddBook() {
     { value: "2024", label: "2024" },
   ];
 
-
-
   return (
     <Fragment>
       <Breadcrumbs
@@ -234,13 +227,15 @@ export default function AddBook() {
           <form onSubmit={handleSubmit(onSubmit)}>
             {books.map((book, index) => (
               <FormGroup key={index}>
-                  <Col md={12} className="d-flex justify-content-end text-danger" style={{fontSize:"2rem"}}>
-                    {index !== 0 && ( // Exclude the first form group
-                      
-                        <MdCancel onClick={() => handleRemoveBook(index)}/>
-                      
-                    )}
-                  </Col>
+                <Col
+                  md={12}
+                  className="d-flex justify-content-end text-danger"
+                  style={{ fontSize: "2rem" }}
+                >
+                  {index !== 0 && ( // Exclude the first form group
+                    <MdCancel onClick={() => handleRemoveBook(index)} />
+                  )}
+                </Col>
                 <Row className="p-2">
                   <Col md={6}>
                     <Label
@@ -259,12 +254,11 @@ export default function AddBook() {
                           <select {...field} className="form-control">
                             <option value="">Select Book Location</option>
                             {/* <option>Select block</option> */}
-                    {block.map((b) => (
-                      <option key={b.id} value={b.block_name}>
-                        {b.block_name}
-                      </option>
-                    ))}
-                           
+                            {block.map((b) => (
+                              <option key={b.id} value={b.block_name}>
+                                {b.block_name}
+                              </option>
+                            ))}
                           </select>
                         </>
                       )}
@@ -643,7 +637,6 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].pages`}
-
                       control={control}
                       rules={{
                         required: true,
@@ -673,7 +666,6 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].languages`}
-
                       control={control}
                       rules={{ required: true }}
                       render={({ field }) => (
@@ -736,7 +728,6 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].material`}
-
                       control={control}
                       rules={{ required: true }}
                       render={({ field }) => (
@@ -765,7 +756,6 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].subMaterial`}
-
                       control={control}
                       rules={{ required: true }}
                       render={({ field }) => (
@@ -782,7 +772,8 @@ export default function AddBook() {
                         </>
                       )}
                     />
-                    {errors?.books?.[index]?.subMaterial?.type === "required" && (
+                    {errors?.books?.[index]?.subMaterial?.type ===
+                      "required" && (
                       <p className="text-danger">
                         Sub material type is required
                       </p>
@@ -797,7 +788,6 @@ export default function AddBook() {
                       Class No
                     </Label>
                     <Controller
-                      
                       name={`books[${index}].classNo`}
                       control={control}
                       rules={{
@@ -837,7 +827,6 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].publicationYear`}
-
                       control={control}
                       rules={{
                         required: true,
@@ -854,7 +843,8 @@ export default function AddBook() {
                         </>
                       )}
                     />
-                    {errors?.books?.[index]?.publicationYear?.type === "required" && (
+                    {errors?.books?.[index]?.publicationYear?.type ===
+                      "required" && (
                       <p className="text-danger">Publish Date is required</p>
                     )}
                   </Col>
@@ -868,7 +858,6 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].pageNo`}
-
                       control={control}
                       rules={{
                         required: true,
@@ -907,7 +896,6 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].publicationPlace`}
-
                       control={control}
                       rules={{
                         required: true,
@@ -920,17 +908,20 @@ export default function AddBook() {
                         </>
                       )}
                     />
-                    {errors?.books?.[index]?.publicationPlace?.type === "required" && (
+                    {errors?.books?.[index]?.publicationPlace?.type ===
+                      "required" && (
                       <p className="text-danger">
                         Place of publication is required
                       </p>
                     )}
-                    {errors?.books?.[index]?.publicationPlace?.type === "maxLength" && (
+                    {errors?.books?.[index]?.publicationPlace?.type ===
+                      "maxLength" && (
                       <p className="text-danger">
                         Place of publication should be maximum 20 characters
                       </p>
                     )}
-                    {errors?.books?.[index]?.publicationPlace?.type === "pattern" && (
+                    {errors?.books?.[index]?.publicationPlace?.type ===
+                      "pattern" && (
                       <p className="text-danger">Alphabets only</p>
                     )}
                   </Col>
@@ -944,7 +935,6 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].Accession`}
-
                       control={control}
                       rules={{ required: true }}
                       render={({ field }) => (
@@ -975,7 +965,6 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].entryDate`}
-
                       control={control}
                       rules={{
                         required: true,
@@ -1006,7 +995,6 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].financialYear`}
-
                       control={control}
                       rules={{ required: true }}
                       render={({ field }) => (
@@ -1019,7 +1007,8 @@ export default function AddBook() {
                         </>
                       )}
                     />
-                    {errors?.books?.[index]?.financialYear?.type === "required" && (
+                    {errors?.books?.[index]?.financialYear?.type ===
+                      "required" && (
                       <p className="text-danger">Financial year is required</p>
                     )}
                   </Col>
@@ -1035,7 +1024,6 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].subject`}
-
                       control={control}
                       rules={{ required: true }}
                       render={({ field }) => (
@@ -1053,7 +1041,6 @@ export default function AddBook() {
                     )}
                   </Col>
                 </Row>
-              
               </FormGroup>
             ))}
             <div className="d-flex justify-content-between">
@@ -1074,15 +1061,14 @@ export default function AddBook() {
                   Cancel
                 </Button>
               </div>
-              {mode==="add" &&
-               <IoIosAddCircle
-               color="success"
-               className="text-success"
-               style={{ fontSize: "3rem" }}
-               onClick={handleAddBook}
-             />
-              }
-             
+              {mode === "add" && (
+                <IoIosAddCircle
+                  color="success"
+                  className="text-success"
+                  style={{ fontSize: "3rem" }}
+                  onClick={handleAddBook}
+                />
+              )}
             </div>
           </form>
         </CardBody>
