@@ -16,14 +16,18 @@ import BookAdding from "./Components/BookAdding";
 import { IoIosAddCircle, IoMdClose } from "react-icons/io";
 import { useLocation } from "react-router-dom";
 import { MdCancel } from "react-icons/md";
-import { GetBlock, addBook } from "../../../api_handler/addbookapi";
+import {
+  GetBlock,
+  UpdateBookLocation,
+  addBook,
+} from "../../../api_handler/addbookapi";
 import { toast } from "react-toastify";
 
 export default function AddBook() {
   const location = useLocation();
   const { bookDetails } = location.state || {};
 
-  console.log(bookDetails);
+  console.log("bookDetails is", bookDetails);
   const {
     control,
     handleSubmit,
@@ -37,10 +41,11 @@ export default function AddBook() {
   const [block, setBlock] = useState([]);
   const [mode, setMode] = useState("add");
 
+  const userId = localStorage.getItem("userId");
   const userType = localStorage.getItem("userType");
   const branchId = localStorage.getItem("branchId");
   console.log(userType, branchId);
-
+  console.log("array book is", books);
   //getblock
   useEffect(() => {
     async function fetchData() {
@@ -66,58 +71,85 @@ export default function AddBook() {
   const onSubmit = (data) => {
     console.log("b4 submit", data);
     data.books.map((item) => {
-      addBook(
-        item.title,
-        item.bookLocation,
-        item.categoryName,
-        item.author,
-        item.publisher,
-        item.vendor,
-        item.isbnCode,
-        item.publicationYear,
-        item.program,
-        item.dept,
-        item.programYear,
-        item.volume,
-        item.pages,
-        item.subject,
-        item.languages,
-        item.edition,
-        item.material,
-        item.subMaterial,
-        item.classNo,
-        item.publicationYear,
-        item.pageNo,
-        item.publicationPlace,
-        item.Accession,
-        item.entryDate,
-        item.financialYear
-      ).then((res) => {
-        console.log(res);
-        if (res.status === "success") {
-          toast.success(res.message);
-
-          window.location.replace(`/lms/${userType}/${userId}/view-books`);
-          console.log("Submitted data:", data);
-        } else if (res.status === "error") {
-          toast.error(res.message);
-        }
-      });
+      if (bookDetails) {
+        UpdateBookLocation(
+          item.title,
+          item.bookLocation,
+          item.categoryName,
+          item.author,
+          item.publisher,
+          item.vendor,
+          item.isbnCode,
+          item.publicationYear,
+          item.program,
+          JSON.stringify(item.dept),
+          JSON.stringify(item.programYear),
+          item.volume,
+          item.pages,
+          item.subject,
+          item.languages,
+          item.edition,
+          item.material,
+          item.subMaterial,
+          item.classNo,
+          item.publicationYear,
+          item.pageNo,
+          item.publicationPlace,
+          item.Accession,
+          item.entryDate,
+          item.financialYear,
+          bookDetails.id
+        ).then((res) => {
+          console.log(res);
+          if (res.status === "success") {
+            toast.success(res.message);
+            window.location.replace(`/lms/${userType}/${userId}/view-books`);
+            console.log("updated data:", data);
+          } else if (res.status === "error") {
+            toast.error(res.message);
+          }
+        });
+      } else {
+        addBook(
+          item.title,
+          item.bookLocation,
+          item.categoryName,
+          item.author,
+          item.publisher,
+          item.vendor,
+          item.isbnCode,
+          item.publicationYear,
+          item.program,
+          item.dept,
+          item.programYear,
+          item.volume,
+          item.pages,
+          item.subject,
+          item.languages,
+          item.edition,
+          item.material,
+          item.subMaterial,
+          item.classNo,
+          item.publicationYear,
+          item.pageNo,
+          item.publicationPlace,
+          item.Accession,
+          item.entryDate,
+          item.financialYear
+        ).then((res) => {
+          console.log(res);
+          if (res.status === "success") {
+            toast.success(res.message);
+            window.location.replace(`/lms/${userType}/${userId}/view-books`);
+            console.log("Submitted data:", data);
+          } else if (res.status === "error") {
+            toast.error(res.message);
+          }
+        });
+      }
     });
-
-    // .then((res)=>{
-    //   console.log(res.json)
-    //   if (res.status === "success") {
-    //            toast.success(res.message);
-
-    //            window.location.replace(
-    //              `/lms/${userType}/${userId}/view-books`
-    //            );
-
-    // }}).catch((err)=>{
-    //   console.log(err)
-    // })
   };
+
   const handleAddBook = async () => {
     const isValid = await trigger(); // Trigger validation for all fields
     if (isValid) {
@@ -132,34 +164,72 @@ export default function AddBook() {
 
   useEffect(() => {
     if (bookDetails) {
-      console.log(bookDetails.publisher);
-      setValue("author", bookDetails.author || "");
-      setValue("blockName", bookDetails.blockName || "");
-      setValue("categoryName", bookDetails.category || "");
-      setValue("classNo", bookDetails.classNo || "");
-      setValue("dept", bookDetails.dept || "");
-      setValue("edition", bookDetails.edition || "");
-      setValue("entryDate", bookDetails.entryDate || "");
-      setValue("financialYear", bookDetails.financialYear || "");
-      setValue("isbnCode", bookDetails.isbnCode || "");
-      setValue("languages", bookDetails.languages || "");
-      setValue("material", bookDetails.material || "");
-      setValue("pageNo", bookDetails.pageNo || "");
+      console.log("book_author", bookDetails.book_author);
+      setValue("book_author", bookDetails.book_author || "");
+      setValue("book_location", bookDetails.book_location || "");
+      setValue("book_category", bookDetails.book_category || "");
+      setValue("book_class_no", bookDetails.book_class_no || "");
+      setValue("book_edition", bookDetails.book_edition || "");
+      setValue("date_of_entry", bookDetails.date_of_entry || "");
+      setValue("financial_year", bookDetails.financial_year || "");
+      setValue("book_isbn_code", bookDetails.book_isbn_code || "");
+      setValue("language", bookDetails.language || "");
+      setValue("book_material_type", bookDetails.book_material_type || "");
+      setValue("book_page_no", bookDetails.book_page_no || "");
       setValue("pages", bookDetails.pages || "");
       setValue("program", bookDetails.program || "");
-      setValue("programYear", bookDetails.programYear || "");
-      setValue("publicationPlace", bookDetails.publicationPlace || "");
-      setValue("publicationYear", bookDetails.publicationYear || "");
-      setValue("publishDate", bookDetails.publishDate || "");
-      setValue("publisher", bookDetails.publisher || "");
-      setValue("subMaterial", bookDetails.subMaterial || "");
-      setValue("title", bookDetails.title || "");
-      setValue("vendor", bookDetails.vendor || "");
-      setValue("volume", bookDetails.volume || "");
-      setValue("material", bookDetails.material || "");
+      setValue("program_year", bookDetails.program_year || "");
+      setValue(
+        "book_place_publication",
+        bookDetails.book_place_publication || ""
+      );
+      setValue(
+        "book_year_of_publication",
+        bookDetails.book_year_of_publication || ""
+      );
+      setValue("published_year", bookDetails.published_year || "");
+      setValue("book_publisher", bookDetails.book_publisher || "");
+      setValue(
+        "book_sub_material_type",
+        bookDetails.book_sub_material_type || ""
+      );
+      setValue("book_name", bookDetails.book_name || "");
+      setValue("book_vendor", bookDetails.book_vendor || "");
+      setValue("book_volume", bookDetails.book_volume || "");
       setValue("subject", bookDetails.subject || "");
     }
   }, [bookDetails, setValue]);
+
+  // useEffect(() => {
+  //   if (bookDetails) {
+  //     console.log("publisher",bookDetails.book_name);
+  //     setValue("author", bookDetails.author || "");
+  //     setValue("blockName", bookDetails.blockName || "");
+  //     setValue("categoryName", bookDetails.category || "");
+  //     setValue("classNo", bookDetails.classNo || "");
+  //     setValue("dept", bookDetails.dept || "");
+  //     setValue("edition", bookDetails.edition || "");
+  //     setValue("entryDate", bookDetails.entryDate || "");
+  //     setValue("financialYear", bookDetails.financialYear || "");
+  //     setValue("isbnCode", bookDetails.isbnCode || "");
+  //     setValue("languages", bookDetails.languages || "");
+  //     setValue("material", bookDetails.material || "");
+  //     setValue("pageNo", bookDetails.pageNo || "");
+  //     setValue("pages", bookDetails.pages || "");
+  //     setValue("program", bookDetails.program || "");
+  //     setValue("programYear", bookDetails.programYear || "");
+  //     setValue("publicationPlace", bookDetails.publicationPlace || "");
+  //     setValue("publicationYear", bookDetails.publicationYear || "");
+  //     setValue("publishDate", bookDetails.publishDate || "");
+  //     setValue("publisher", bookDetails.publisher || "");
+  //     setValue("subMaterial", bookDetails.subMaterial || "");
+  //     setValue("title", bookDetails.title || "");
+  //     setValue("vendor", bookDetails.vendor || "");
+  //     setValue("volume", bookDetails.volume || "");
+  //     setValue("material", bookDetails.material || "");
+  //     setValue("subject", bookDetails.subject || "");
+  //   }
+  // }, [bookDetails, setValue]);
 
   useEffect(() => {
     // Set initial values for input fields based on each book object
@@ -247,7 +317,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].bookLocation`}
                       control={control}
-                      defaultValue={book.bookLocation || ""}
+                      defaultValue={book.book_location || ""}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
@@ -279,7 +349,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].categoryName`}
                       control={control}
-                      defaultValue={book.categoryName || ""}
+                      defaultValue={book.book_category || ""}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
@@ -309,7 +379,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].title`}
                       control={control}
-                      defaultValue={book.title || ""}
+                      defaultValue={book.book_name || ""}
                       rules={{
                         required: true,
                         maxLength: 20,
@@ -347,7 +417,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].author`}
                       control={control}
-                      defaultValue={book.author || ""}
+                      defaultValue={book.book_author || ""}
                       rules={{
                         required: true,
                         maxLength: 10,
@@ -390,7 +460,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].publisher`}
                       control={control}
-                      defaultValue={book.publisher || ""}
+                      defaultValue={book.book_publisher || ""}
                       rules={{
                         required: true,
                         maxLength: 20,
@@ -431,7 +501,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].vendor`}
                       control={control}
-                      defaultValue={book.vendor || ""}
+                      defaultValue={book.book_vendor || ""}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
@@ -460,7 +530,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].publishDate`}
                       control={control}
-                      defaultValue={book.publishDate || ""}
+                      defaultValue={book.published_year || ""}
                       rules={{
                         required: true,
                         maxLength: 10,
@@ -524,7 +594,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].dept`}
                       control={control}
-                      defaultValue={book.dept || []}
+                      defaultValue={book.department || []}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
@@ -548,7 +618,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].programYear`}
                       control={control}
-                      defaultValue={book.programYear || []}
+                      defaultValue={book.program_year || []}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
@@ -576,7 +646,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].isbnCode`}
                       control={control}
-                      defaultValue={book.isbnCode || ""}
+                      defaultValue={book.book_isbn_code || ""}
                       rules={{
                         required: true,
                         maxLength: 20,
@@ -601,7 +671,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].volume`}
                       control={control}
-                      defaultValue={book.volume || ""}
+                      defaultValue={book.book_volume || ""}
                       rules={{
                         required: true,
                         maxLength: 20,
@@ -638,6 +708,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].pages`}
                       control={control}
+                      defaultValue={book.book_page_no || ""}
                       rules={{
                         required: true,
                         maxLength: 20,
@@ -667,6 +738,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].languages`}
                       control={control}
+                      defaultValue={book.language || ""}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
@@ -695,6 +767,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].edition`}
                       control={control}
+                      defaultValue={book.book_edition}
                       rules={{
                         required: true,
                         maxLength: 20,
@@ -729,6 +802,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].material`}
                       control={control}
+                      defaultValue={book.book_material_type}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
@@ -757,6 +831,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].subMaterial`}
                       control={control}
+                      defaultValue={book.book_sub_material_type}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
@@ -789,6 +864,7 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].classNo`}
+                      defaultValue={book.book_class_no}
                       control={control}
                       rules={{
                         required: true,
@@ -828,6 +904,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].publicationYear`}
                       control={control}
+                      defaultValue={book.book_year_of_publication}
                       rules={{
                         required: true,
                         maxLength: 10,
@@ -858,6 +935,7 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].pageNo`}
+                      defaultValue={book.book_page_no}
                       control={control}
                       rules={{
                         required: true,
@@ -897,6 +975,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].publicationPlace`}
                       control={control}
+                      defaultValue={book.book_place_publication}
                       rules={{
                         required: true,
                         maxLength: 20,
@@ -936,6 +1015,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].Accession`}
                       control={control}
+                      defaultValue={book.book_accession_register}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
@@ -966,6 +1046,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].entryDate`}
                       control={control}
+                      defaultValue={book.date_of_entry}
                       rules={{
                         required: true,
                         maxLength: 10,
@@ -996,6 +1077,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].financialYear`}
                       control={control}
+                      defaultValue={book.financial_year}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
@@ -1025,6 +1107,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].subject`}
                       control={control}
+                      defaultValue={book.subject}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
