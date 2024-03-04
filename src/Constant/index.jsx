@@ -1638,3 +1638,5 @@ export const Back = "Back";
 export const DatatableOrderhistory = "Datatable Order history";
 
 export const branchID = localStorage.getItem("branchId");
+export const userId = localStorage.getItem("userId");
+export const userType = localStorage.getItem("userType");

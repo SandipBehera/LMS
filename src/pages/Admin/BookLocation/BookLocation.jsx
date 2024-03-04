@@ -104,7 +104,7 @@ export default function BookLocation() {
                           {block.map((b) => {
                             return (
                               <option key={b.id} value={b.block_name}>
-                                {b.block_name}
+                                {b.block_name}/{b.floor_name}
                               </option>
                             );
                           })}
