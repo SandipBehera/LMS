@@ -10,8 +10,8 @@ WORKDIR /app
 COPY package*.json ./ yarn.lock ./
 
 # Install project dependencies
-RUN npm i react-dev-utils
 RUN npm i node-sass
+RUN npm i react-dev-utils --force
 RUN yarn install
 
 
