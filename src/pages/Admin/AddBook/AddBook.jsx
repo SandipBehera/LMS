@@ -16,11 +16,7 @@ import BookAdding from "./Components/BookAdding";
 import { IoIosAddCircle, IoMdClose } from "react-icons/io";
 import { useLocation } from "react-router-dom";
 import { MdCancel } from "react-icons/md";
-import {
-  GetBlock,
-  UpdateBookLocation,
-  addBook,
-} from "../../../api_handler/addbookapi";
+import { UpdateBookLocation, addBook } from "../../../api_handler/addbookapi";
 import { toast } from "react-toastify";
 import {
   departmentInfo,
@@ -44,6 +40,7 @@ export default function AddBook() {
     trigger,
     formState: { errors },
   } = useForm();
+  console.log("first", bookDetails);
 
   const [resetFlag, setResetFlag] = useState(false);
   const [books, setBooks] = useState([bookDetails] || [{}]);
@@ -104,6 +101,7 @@ export default function AddBook() {
     console.log("b4 submit", data);
     data.books.map((item) => {
       if (bookDetails) {
+        console.log("update", bookDetails.id);
         UpdateBookLocation(
           item.title,
           item.bookLocation,
@@ -202,7 +200,7 @@ export default function AddBook() {
       setValue("book_category", bookDetails.book_category || "");
       setValue("book_class_no", bookDetails.book_class_no || "");
       setValue("book_edition", bookDetails.book_edition || "");
-      setValue("date_of_entry", bookDetails.date_of_entry || "");
+      // setValue("date_of_entry", bookDetails.date_of_entry || "");
       setValue("financial_year", bookDetails.financial_year || "");
       setValue("book_isbn_code", bookDetails.book_isbn_code || "");
       setValue("language", bookDetails.language || "");
@@ -219,7 +217,7 @@ export default function AddBook() {
         "book_year_of_publication",
         bookDetails.book_year_of_publication || ""
       );
-      setValue("published_year", bookDetails.published_year || "");
+      // setValue("published_year", bookDetails.published_year || "");
       setValue("book_publisher", bookDetails.book_publisher || "");
       setValue(
         "book_sub_material_type",
@@ -359,9 +357,7 @@ export default function AddBook() {
                       <p className="text-danger">Book category is required</p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -440,9 +436,7 @@ export default function AddBook() {
                       </p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -513,40 +507,7 @@ export default function AddBook() {
                       <p className="text-danger">Vendor name is required</p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
-                  <Col md={6}>
-                    <Label
-                      className="font-size font-weight-bold"
-                      style={{ fontWeight: "bold" }}
-                    >
-                      Publish Year
-                    </Label>
-                    <Controller
-                      name={`books[${index}].publishDate`}
-                      control={control}
-                      defaultValue={book.published_year || ""}
-                      rules={{
-                        required: true,
-                        maxLength: 10,
-                      }}
-                      render={({ field }) => (
-                        <>
-                          <input
-                            {...field}
-                            className="form-control"
-                            type="date"
-                            max={new Date().toISOString().split("T")[0]} // Disables future dates
-                          />
-                        </>
-                      )}
-                    />
-                    {errors?.books?.[index]?.publishDate?.type ===
-                      "required" && (
-                      <p className="text-danger">Publish year is required</p>
-                    )}
-                  </Col>
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -576,9 +537,7 @@ export default function AddBook() {
                       <p className="text-danger">Program name is required</p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -632,9 +591,7 @@ export default function AddBook() {
                       </p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -694,9 +651,7 @@ export default function AddBook() {
                       <p className="text-danger">Alphabets and numbers only</p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -756,9 +711,7 @@ export default function AddBook() {
                       <p className="text-danger">Language is required</p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -810,8 +763,8 @@ export default function AddBook() {
                         <>
                           <select {...field} className="form-control">
                             <option value="">Select Material Type</option>
-                            <option value="active">Book</option>
-                            <option value="inactive">Non Book</option>
+                            <option value="book">Book</option>
+                            <option value="non-book">Non Book</option>
                           </select>
                         </>
                       )}
@@ -820,9 +773,7 @@ export default function AddBook() {
                       <p className="text-danger">Material type is required</p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -893,9 +844,7 @@ export default function AddBook() {
                       </p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -964,9 +913,7 @@ export default function AddBook() {
                       </p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -1035,39 +982,6 @@ export default function AddBook() {
                       </p>
                     )}
                   </Col>
-                </Row>
-
-                <Row className="p-2">
-                  <Col md={6}>
-                    <Label
-                      className="font-size font-weight-bold"
-                      style={{ fontWeight: "bold" }}
-                    >
-                      Date of Entry
-                    </Label>
-                    <Controller
-                      name={`books[${index}].entryDate`}
-                      control={control}
-                      defaultValue={book.date_of_entry}
-                      rules={{
-                        required: true,
-                        maxLength: 10,
-                      }}
-                      render={({ field }) => (
-                        <>
-                          <input
-                            {...field}
-                            className="form-control"
-                            type="date"
-                            max={new Date().toISOString().split("T")[0]} // Disables future dates
-                          />
-                        </>
-                      )}
-                    />
-                    {errors?.books?.[index]?.entryDate?.type === "required" && (
-                      <p className="text-danger">Date of entry is required</p>
-                    )}
-                  </Col>
 
                   <Col md={6}>
                     <Label
@@ -1096,9 +1010,7 @@ export default function AddBook() {
                       <p className="text-danger">Financial year is required</p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"

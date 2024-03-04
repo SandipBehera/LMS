@@ -18,6 +18,7 @@ import {
   UpdateBookLocation,
 } from "../../../api_handler/addbookapi";
 import "./css/datatable.css";
+import { userId } from "../../../Constant";
 const ViewAllBooks = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [books, setBooks] = useState([]);
@@ -119,7 +120,7 @@ const ViewAllBooks = () => {
             <DropdownItem>
               {" "}
               <Link
-                to={`/${userType}/${branchId}/edit-book`}
+                to={`/${userType}/${userId}/edit-book`}
                 state={{ bookDetails: row }}
               >
                 Edit

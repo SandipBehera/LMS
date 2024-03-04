@@ -109,7 +109,8 @@ export const UpdateBookLocation = async (
   book_place_publication,
   book_accession_register,
   date_of_entry,
-  financial_year
+  financial_year,
+  id
 ) => {
   return await fetch(`${WebApi}/update-book/${id}`, {
     method: "PUT",
