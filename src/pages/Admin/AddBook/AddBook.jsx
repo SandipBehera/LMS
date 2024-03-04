@@ -16,12 +16,23 @@ import BookAdding from "./Components/BookAdding";
 import { IoIosAddCircle, IoMdClose } from "react-icons/io";
 import { useLocation } from "react-router-dom";
 import { MdCancel } from "react-icons/md";
+import { UpdateBookLocation, addBook } from "../../../api_handler/addbookapi";
+import { toast } from "react-toastify";
+import {
+  departmentInfo,
+  languageList,
+  programList,
+  programYear,
+  subjectList,
+  vendorList,
+} from "../../../api_handler/collegeInfo";
+import { branchID, userId, userType } from "../../../Constant";
+import { GetAllBookCategories } from "../../../api_handler/bookcategory";
+import { GetAllBookLocation } from "../../../api_handler/booklocation";
 
 export default function AddBook() {
   const location = useLocation();
   const { bookDetails } = location.state || {};
-
-  console.log(bookDetails);
   const {
     control,
     handleSubmit,
@@ -29,33 +40,151 @@ export default function AddBook() {
     trigger,
     formState: { errors },
   } = useForm();
+  console.log("first", bookDetails);
 
   const [resetFlag, setResetFlag] = useState(false);
-  const [books, setBooks] = useState([bookDetails || {}]);
-
+  const [books, setBooks] = useState([bookDetails] || [{}]);
+  const [block, setBlock] = useState([]);
   const [mode, setMode] = useState("add");
-
-  const userType=localStorage.getItem("userType");
-  const branchId = localStorage.getItem("branchId");
-  console.log(userType,branchId)
+  const [department, setDepartment] = useState([]);
+  const [programYearData, setProgramYear] = useState([]);
+  const [vendor, setVendor] = useState([]);
+  const [programListData, setProgramList] = useState([]);
+  const [bookCategory, setBookCategory] = useState([]);
+  const [allsubjectList, setAllSubjectList] = useState([]);
+  const [Language, setLanguage] = useState([]);
 
   useEffect(() => {
-    if (location.pathname === `/${userType}/${branchId}/edit-book`) {
-      console.log(location.pathname)
+    async function fetchData() {
+      try {
+        const response = await GetAllBookLocation();
+        const ProgramList = await programList();
+        const DeparmentList = await departmentInfo();
+        const ProgramYearList = await programYear();
+        const VendorList = await vendorList();
+        const bCategory = await GetAllBookCategories();
+        const sList = await subjectList();
+        const lang = await languageList();
 
+        setBlock(response.location);
+        setDepartment(
+          DeparmentList.departments?.map((item) => ({
+            value: item.class_name,
+            label: item.class_name,
+          })) || []
+        );
+        setProgramYear(
+          ProgramYearList.program_years?.map((item) => ({
+            value: item.id,
+            label: `${item.course_year}/${item.semester}`,
+          })) || []
+        );
+        setVendor(VendorList.vendors);
+        setProgramList(ProgramList.programs);
+        setBookCategory(bCategory.categories);
+        setAllSubjectList(sList.subjects);
+        setLanguage(lang.languages);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (location.pathname === `/${userType}/${branchID}/edit-book`) {
       setMode("edit");
     }
-    
   }, [location.pathname]);
-  
+
   const onSubmit = (data) => {
-    console.log(data);
+    console.log("b4 submit", data);
+    data.books.map((item) => {
+      if (bookDetails) {
+        console.log("update", bookDetails.id);
+        UpdateBookLocation(
+          item.title,
+          item.bookLocation,
+          item.categoryName,
+          item.author,
+          item.publisher,
+          item.vendor,
+          item.isbnCode,
+          item.publicationYear,
+          item.program,
+          JSON.stringify(item.dept),
+          JSON.stringify(item.programYear),
+          item.volume,
+          item.pages,
+          item.subject,
+          item.languages,
+          item.edition,
+          item.material,
+          item.subMaterial,
+          item.classNo,
+          item.publicationYear,
+          item.pageNo,
+          item.publicationPlace,
+          item.Accession,
+          item.entryDate,
+          item.financialYear,
+          bookDetails.id
+        ).then((res) => {
+          console.log(res);
+          if (res.status === "success") {
+            toast.success(res.message);
+            window.location.replace(`/lms/${userType}/${userId}/view-books`);
+            console.log("updated data:", data);
+          } else if (res.status === "error") {
+            toast.error(res.message);
+          }
+        });
+      } else {
+        addBook(
+          item.title,
+          item.bookLocation,
+          item.categoryName,
+          item.author,
+          item.publisher,
+          item.vendor,
+          item.isbnCode,
+          item.publicationYear,
+          item.program,
+          item.dept,
+          item.programYear,
+          item.volume,
+          item.pages,
+          item.subject,
+          item.languages,
+          item.edition,
+          item.material,
+          item.subMaterial,
+          item.classNo,
+          item.publicationYear,
+          item.pageNo,
+          item.publicationPlace,
+          item.Accession,
+          item.entryDate,
+          item.financialYear
+        ).then((res) => {
+          console.log(res);
+          if (res.status === "success") {
+            toast.success(res.message);
+            window.location.replace(`/lms/${userType}/${userId}/view-books`);
+            console.log("Submitted data:", data);
+          } else if (res.status === "error") {
+            toast.error(res.message);
+          }
+        });
+      }
+    });
   };
+
   const handleAddBook = async () => {
     const isValid = await trigger(); // Trigger validation for all fields
     if (isValid) {
       setBooks([...books, {}]); // Add a new empty book object if all fields are valid
-    }// Add a new empty book object
+    } // Add a new empty book object
     console.log("hello");
   };
 
@@ -65,31 +194,38 @@ export default function AddBook() {
 
   useEffect(() => {
     if (bookDetails) {
-      console.log(bookDetails.publisher);
-      setValue("author", bookDetails.author || "");
-      setValue("blockName", bookDetails.blockName || "");
-      setValue("categoryName", bookDetails.category || "");
-      setValue("classNo", bookDetails.classNo || "");
-      setValue("dept", bookDetails.dept || "");
-      setValue("edition", bookDetails.edition || "");
-      setValue("entryDate", bookDetails.entryDate || "");
-      setValue("financialYear", bookDetails.financialYear || "");
-      setValue("isbnCode", bookDetails.isbnCode || "");
-      setValue("languages", bookDetails.languages || "");
-      setValue("material", bookDetails.material || "");
-      setValue("pageNo", bookDetails.pageNo || "");
+      console.log("book_author", bookDetails.book_author);
+      setValue("book_author", bookDetails.book_author || "");
+      setValue("book_location", bookDetails.book_location || "");
+      setValue("book_category", bookDetails.book_category || "");
+      setValue("book_class_no", bookDetails.book_class_no || "");
+      setValue("book_edition", bookDetails.book_edition || "");
+      // setValue("date_of_entry", bookDetails.date_of_entry || "");
+      setValue("financial_year", bookDetails.financial_year || "");
+      setValue("book_isbn_code", bookDetails.book_isbn_code || "");
+      setValue("language", bookDetails.language || "");
+      setValue("book_material_type", bookDetails.book_material_type || "");
+      setValue("book_page_no", bookDetails.book_page_no || "");
       setValue("pages", bookDetails.pages || "");
       setValue("program", bookDetails.program || "");
-      setValue("programYear", bookDetails.programYear || "");
-      setValue("publicationPlace", bookDetails.publicationPlace || "");
-      setValue("publicationYear", bookDetails.publicationYear || "");
-      setValue("publishDate", bookDetails.publishDate || "");
-      setValue("publisher", bookDetails.publisher || "");
-      setValue("subMaterial", bookDetails.subMaterial || "");
-      setValue("title", bookDetails.title || "");
-      setValue("vendor", bookDetails.vendor || "");
-      setValue("volume", bookDetails.volume || "");
-      setValue("material", bookDetails.material || "");
+      setValue("program_year", bookDetails.program_year || "");
+      setValue(
+        "book_place_publication",
+        bookDetails.book_place_publication || ""
+      );
+      setValue(
+        "book_year_of_publication",
+        bookDetails.book_year_of_publication || ""
+      );
+      // setValue("published_year", bookDetails.published_year || "");
+      setValue("book_publisher", bookDetails.book_publisher || "");
+      setValue(
+        "book_sub_material_type",
+        bookDetails.book_sub_material_type || ""
+      );
+      setValue("book_name", bookDetails.book_name || "");
+      setValue("book_vendor", bookDetails.book_vendor || "");
+      setValue("book_volume", bookDetails.book_volume || "");
       setValue("subject", bookDetails.subject || "");
     }
   }, [bookDetails, setValue]);
@@ -133,23 +269,10 @@ export default function AddBook() {
       setValue("vendor", "");
       setValue("volume", "");
       setValue("material", "");
-      setValue("subject","");
-      setValue("Accession", "")
+      setValue("subject", "");
+      setValue("Accession", "");
     }, 0);
   };
-  //Dummy Department
-  const deptOptions = [
-    { value: "Department1", label: "Department 1" },
-    { value: "Department2", label: "Department 2" },
-  ];
-  //Dummy Program Year
-  const programYear = [
-    { value: "2023", label: "2023" },
-    { value: "2024", label: "2024" },
-  ];
-
-
-
   return (
     <Fragment>
       <Breadcrumbs
@@ -162,13 +285,15 @@ export default function AddBook() {
           <form onSubmit={handleSubmit(onSubmit)}>
             {books.map((book, index) => (
               <FormGroup key={index}>
-                  <Col md={12} className="d-flex justify-content-end text-danger" style={{fontSize:"2rem"}}>
-                    {index !== 0 && ( // Exclude the first form group
-                      
-                        <MdCancel onClick={() => handleRemoveBook(index)}/>
-                      
-                    )}
-                  </Col>
+                <Col
+                  md={12}
+                  className="d-flex justify-content-end text-danger"
+                  style={{ fontSize: "2rem" }}
+                >
+                  {index !== 0 && ( // Exclude the first form group
+                    <MdCancel onClick={() => handleRemoveBook(index)} />
+                  )}
+                </Col>
                 <Row className="p-2">
                   <Col md={6}>
                     <Label
@@ -180,18 +305,18 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].bookLocation`}
                       control={control}
-                      defaultValue={book.bookLocation || ""}
+                      defaultValue={book.book_location || ""}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
                           <select {...field} className="form-control">
                             <option value="">Select Book Location</option>
-                            <option value="Block1/Floor1">
-                              Block 1/Floor 1
-                            </option>
-                            <option value="Block2/Floor2">
-                              Block 2/Floor 2
-                            </option>
+                            {/* <option>Select block</option> */}
+                            {block.map((b) => (
+                              <option key={b.id} value={b.block}>
+                                {b.block}
+                              </option>
+                            ))}
                           </select>
                         </>
                       )}
@@ -212,14 +337,17 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].categoryName`}
                       control={control}
-                      defaultValue={book.categoryName || ""}
+                      defaultValue={book.book_category || ""}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
                           <select {...field} className="form-control">
                             <option value="">Select Book Category</option>
-                            <option value="category1">Category 1</option>
-                            <option value="category2">Category 2</option>
+                            {bookCategory.map((b) => (
+                              <option key={b.id} value={b.category_name}>
+                                {b.category_name}
+                              </option>
+                            ))}
                           </select>
                         </>
                       )}
@@ -229,9 +357,7 @@ export default function AddBook() {
                       <p className="text-danger">Book category is required</p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -242,7 +368,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].title`}
                       control={control}
-                      defaultValue={book.title || ""}
+                      defaultValue={book.book_name || ""}
                       rules={{
                         required: true,
                         maxLength: 20,
@@ -280,7 +406,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].author`}
                       control={control}
-                      defaultValue={book.author || ""}
+                      defaultValue={book.book_author || ""}
                       rules={{
                         required: true,
                         maxLength: 10,
@@ -310,9 +436,7 @@ export default function AddBook() {
                       </p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -323,7 +447,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].publisher`}
                       control={control}
-                      defaultValue={book.publisher || ""}
+                      defaultValue={book.book_publisher || ""}
                       rules={{
                         required: true,
                         maxLength: 20,
@@ -364,14 +488,17 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].vendor`}
                       control={control}
-                      defaultValue={book.vendor || ""}
+                      defaultValue={book.book_vendor || ""}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
                           <select {...field} className="form-control">
                             <option value="">Select Vendor</option>
-                            <option value="vendor 1">Vendor 1</option>
-                            <option value="vendor 2">Vendor 2</option>
+                            {vendor.map((v) => (
+                              <option key={v.id} value={v.vendor_name}>
+                                {v.vendor_name}
+                              </option>
+                            ))}
                           </select>
                         </>
                       )}
@@ -380,40 +507,7 @@ export default function AddBook() {
                       <p className="text-danger">Vendor name is required</p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
-                  <Col md={6}>
-                    <Label
-                      className="font-size font-weight-bold"
-                      style={{ fontWeight: "bold" }}
-                    >
-                      Publish Year
-                    </Label>
-                    <Controller
-                      name={`books[${index}].publishDate`}
-                      control={control}
-                      defaultValue={book.publishDate || ""}
-                      rules={{
-                        required: true,
-                        maxLength: 10,
-                      }}
-                      render={({ field }) => (
-                        <>
-                          <input
-                            {...field}
-                            className="form-control"
-                            type="date"
-                            max={new Date().toISOString().split("T")[0]} // Disables future dates
-                          />
-                        </>
-                      )}
-                    />
-                    {errors?.books?.[index]?.publishDate?.type ===
-                      "required" && (
-                      <p className="text-danger">Publish year is required</p>
-                    )}
-                  </Col>
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -430,12 +524,11 @@ export default function AddBook() {
                         <>
                           <select {...field} className="form-control">
                             <option value="">Select Program</option>
-                            <option value="program1">
-                              Program Type 1/Program 1
-                            </option>
-                            <option value="program2">
-                              Program Type 2/Program 2
-                            </option>
+                            {programListData.map((p) => (
+                              <option key={p.course_id} value={p.course_type}>
+                                {p.course_type}
+                              </option>
+                            ))}
                           </select>
                         </>
                       )}
@@ -444,30 +537,28 @@ export default function AddBook() {
                       <p className="text-danger">Program name is required</p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
                       style={{ fontWeight: "bold" }}
                     >
-                      Department
+                      dept
                     </Label>
                     <Controller
                       name={`books[${index}].dept`}
                       control={control}
-                      defaultValue={book.dept || []}
+                      defaultValue={book.department || []}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
-                          <Select {...field} isMulti options={deptOptions} />
+                          <Select {...field} isMulti options={department} />
                         </>
                       )}
                     />
                     {errors?.books?.[index]?.dept?.type === "required" && (
                       <p className="text-danger">
-                        At least one department is required
+                        At least one dept is required
                       </p>
                     )}
                   </Col>
@@ -481,11 +572,15 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].programYear`}
                       control={control}
-                      defaultValue={book.programYear || []}
+                      defaultValue={book.program_year || []}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
-                          <Select {...field} isMulti options={programYear} />
+                          <Select
+                            {...field}
+                            isMulti
+                            options={programYearData}
+                          />
                         </>
                       )}
                     />
@@ -496,9 +591,7 @@ export default function AddBook() {
                       </p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -509,7 +602,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].isbnCode`}
                       control={control}
-                      defaultValue={book.isbnCode || ""}
+                      defaultValue={book.book_isbn_code || ""}
                       rules={{
                         required: true,
                         maxLength: 20,
@@ -534,7 +627,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].volume`}
                       control={control}
-                      defaultValue={book.volume || ""}
+                      defaultValue={book.book_volume || ""}
                       rules={{
                         required: true,
                         maxLength: 20,
@@ -558,9 +651,7 @@ export default function AddBook() {
                       <p className="text-danger">Alphabets and numbers only</p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -570,8 +661,8 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].pages`}
-
                       control={control}
+                      defaultValue={book.book_page_no || ""}
                       rules={{
                         required: true,
                         maxLength: 20,
@@ -600,15 +691,18 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].languages`}
-
                       control={control}
+                      defaultValue={book.language || ""}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
                           <select {...field} className="form-control">
                             <option value="">Select Language</option>
-                            <option value="active">Language 1</option>
-                            <option value="inactive">Language 2</option>
+                            {Language.map((l) => (
+                              <option key={l.id} value={l.language_name}>
+                                {l.language_name}
+                              </option>
+                            ))}
                           </select>
                         </>
                       )}
@@ -617,9 +711,7 @@ export default function AddBook() {
                       <p className="text-danger">Language is required</p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -630,6 +722,7 @@ export default function AddBook() {
                     <Controller
                       name={`books[${index}].edition`}
                       control={control}
+                      defaultValue={book.book_edition}
                       rules={{
                         required: true,
                         maxLength: 20,
@@ -663,15 +756,15 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].material`}
-
                       control={control}
+                      defaultValue={book.book_material_type}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
                           <select {...field} className="form-control">
                             <option value="">Select Material Type</option>
-                            <option value="active">Book</option>
-                            <option value="inactive">Non Book</option>
+                            <option value="book">Book</option>
+                            <option value="non-book">Non Book</option>
                           </select>
                         </>
                       )}
@@ -680,9 +773,7 @@ export default function AddBook() {
                       <p className="text-danger">Material type is required</p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -692,8 +783,8 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].subMaterial`}
-
                       control={control}
+                      defaultValue={book.book_sub_material_type}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
@@ -709,7 +800,8 @@ export default function AddBook() {
                         </>
                       )}
                     />
-                    {errors?.books?.[index]?.subMaterial?.type === "required" && (
+                    {errors?.books?.[index]?.subMaterial?.type ===
+                      "required" && (
                       <p className="text-danger">
                         Sub material type is required
                       </p>
@@ -724,8 +816,8 @@ export default function AddBook() {
                       Class No
                     </Label>
                     <Controller
-                      
                       name={`books[${index}].classNo`}
+                      defaultValue={book.book_class_no}
                       control={control}
                       rules={{
                         required: true,
@@ -752,9 +844,7 @@ export default function AddBook() {
                       </p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -764,8 +854,8 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].publicationYear`}
-
                       control={control}
+                      defaultValue={book.book_year_of_publication}
                       rules={{
                         required: true,
                         maxLength: 10,
@@ -781,7 +871,8 @@ export default function AddBook() {
                         </>
                       )}
                     />
-                    {errors?.books?.[index]?.publicationYear?.type === "required" && (
+                    {errors?.books?.[index]?.publicationYear?.type ===
+                      "required" && (
                       <p className="text-danger">Publish Date is required</p>
                     )}
                   </Col>
@@ -795,7 +886,7 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].pageNo`}
-
+                      defaultValue={book.book_page_no}
                       control={control}
                       rules={{
                         required: true,
@@ -822,9 +913,7 @@ export default function AddBook() {
                       </p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -834,8 +923,8 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].publicationPlace`}
-
                       control={control}
+                      defaultValue={book.book_place_publication}
                       rules={{
                         required: true,
                         maxLength: 20,
@@ -847,17 +936,20 @@ export default function AddBook() {
                         </>
                       )}
                     />
-                    {errors?.books?.[index]?.publicationPlace?.type === "required" && (
+                    {errors?.books?.[index]?.publicationPlace?.type ===
+                      "required" && (
                       <p className="text-danger">
                         Place of publication is required
                       </p>
                     )}
-                    {errors?.books?.[index]?.publicationPlace?.type === "maxLength" && (
+                    {errors?.books?.[index]?.publicationPlace?.type ===
+                      "maxLength" && (
                       <p className="text-danger">
                         Place of publication should be maximum 20 characters
                       </p>
                     )}
-                    {errors?.books?.[index]?.publicationPlace?.type === "pattern" && (
+                    {errors?.books?.[index]?.publicationPlace?.type ===
+                      "pattern" && (
                       <p className="text-danger">Alphabets only</p>
                     )}
                   </Col>
@@ -871,8 +963,8 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].Accession`}
-
                       control={control}
+                      defaultValue={book.book_accession_register}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
@@ -890,39 +982,6 @@ export default function AddBook() {
                       </p>
                     )}
                   </Col>
-                </Row>
-
-                <Row className="p-2">
-                  <Col md={6}>
-                    <Label
-                      className="font-size font-weight-bold"
-                      style={{ fontWeight: "bold" }}
-                    >
-                      Date of Entry
-                    </Label>
-                    <Controller
-                      name={`books[${index}].entryDate`}
-
-                      control={control}
-                      rules={{
-                        required: true,
-                        maxLength: 10,
-                      }}
-                      render={({ field }) => (
-                        <>
-                          <input
-                            {...field}
-                            className="form-control"
-                            type="date"
-                            max={new Date().toISOString().split("T")[0]} // Disables future dates
-                          />
-                        </>
-                      )}
-                    />
-                    {errors?.books?.[index]?.entryDate?.type === "required" && (
-                      <p className="text-danger">Date of entry is required</p>
-                    )}
-                  </Col>
 
                   <Col md={6}>
                     <Label
@@ -933,8 +992,8 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].financialYear`}
-
                       control={control}
+                      defaultValue={book.financial_year}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
@@ -946,13 +1005,12 @@ export default function AddBook() {
                         </>
                       )}
                     />
-                    {errors?.books?.[index]?.financialYear?.type === "required" && (
+                    {errors?.books?.[index]?.financialYear?.type ===
+                      "required" && (
                       <p className="text-danger">Financial year is required</p>
                     )}
                   </Col>
-                </Row>
 
-                <Row className="p-2">
                   <Col md={6}>
                     <Label
                       className="font-size font-weight-bold"
@@ -962,15 +1020,18 @@ export default function AddBook() {
                     </Label>
                     <Controller
                       name={`books[${index}].subject`}
-
                       control={control}
+                      defaultValue={book.subject}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
                           <select {...field} className="form-control">
                             <option value="">Select Subject</option>
-                            <option value="Subject1">Subject 1</option>
-                            <option value="Subject2">Subject 2</option>
+                            {allsubjectList.map((s) => (
+                              <option key={s.id} value={s.subject_code}>
+                                {s.subject}
+                              </option>
+                            ))}
                           </select>
                         </>
                       )}
@@ -980,7 +1041,6 @@ export default function AddBook() {
                     )}
                   </Col>
                 </Row>
-              
               </FormGroup>
             ))}
             <div className="d-flex justify-content-between">
@@ -1001,15 +1061,14 @@ export default function AddBook() {
                   Cancel
                 </Button>
               </div>
-              {mode==="add" &&
-               <IoIosAddCircle
-               color="success"
-               className="text-success"
-               style={{ fontSize: "3rem" }}
-               onClick={handleAddBook}
-             />
-              }
-             
+              {mode === "add" && (
+                <IoIosAddCircle
+                  color="success"
+                  className="text-success"
+                  style={{ fontSize: "3rem" }}
+                  onClick={handleAddBook}
+                />
+              )}
             </div>
           </form>
         </CardBody>
