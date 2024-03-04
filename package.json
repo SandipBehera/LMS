@@ -148,7 +148,7 @@
     "world-map-geojson": "^1.0.2"
   },
   "scripts": {
-    "start": "node scripts/start.js",
+    "start": "node PORT=3003 scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js",
     "lint": "eslint --fix --ext .js,.jsx .",
