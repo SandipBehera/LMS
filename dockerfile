@@ -11,6 +11,7 @@ COPY package*.json ./ yarn.lock ./
 
 # Install project dependencies
 RUN yarn install
+RUN npm i react-dev-utils
 
 # Copy the entire project to the working directory
 COPY . .
