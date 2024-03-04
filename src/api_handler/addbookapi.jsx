@@ -150,13 +150,3 @@ export const UpdateBookLocation = async (
     return response.json();
   });
 };
-//get block
-export const GetBlock = async () => {
-  return await fetch(`${WebApi}/get-blocks/${branchID}`, {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      cookie: document.cookie,
-    },
-  }).then((response) => response.json());
-};

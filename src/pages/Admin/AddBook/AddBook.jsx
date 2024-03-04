@@ -22,12 +22,21 @@ import {
   addBook,
 } from "../../../api_handler/addbookapi";
 import { toast } from "react-toastify";
+import {
+  departmentInfo,
+  languageList,
+  programList,
+  programYear,
+  subjectList,
+  vendorList,
+} from "../../../api_handler/collegeInfo";
+import { branchID, userId, userType } from "../../../Constant";
+import { GetAllBookCategories } from "../../../api_handler/bookcategory";
+import { GetAllBookLocation } from "../../../api_handler/booklocation";
 
 export default function AddBook() {
   const location = useLocation();
   const { bookDetails } = location.state || {};
-
-  console.log("bookDetails is", bookDetails);
   const {
     control,
     handleSubmit,
@@ -40,19 +49,44 @@ export default function AddBook() {
   const [books, setBooks] = useState([bookDetails || {}]);
   const [block, setBlock] = useState([]);
   const [mode, setMode] = useState("add");
+  const [department, setDepartment] = useState([]);
+  const [programYearData, setProgramYear] = useState([]);
+  const [vendor, setVendor] = useState([]);
+  const [programListData, setProgramList] = useState([]);
+  const [bookCategory, setBookCategory] = useState([]);
+  const [allsubjectList, setAllSubjectList] = useState([]);
+  const [Language, setLanguage] = useState([]);
 
-  const userId = localStorage.getItem("userId");
-  const userType = localStorage.getItem("userType");
-  const branchId = localStorage.getItem("branchId");
-  console.log(userType, branchId);
-  console.log("array book is", books);
-  //getblock
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await GetBlock();
-        console.log("block are", response.categories);
-        setBlock(response.categories);
+        const response = await GetAllBookLocation();
+        const ProgramList = await programList();
+        const DeparmentList = await departmentInfo();
+        const ProgramYearList = await programYear();
+        const VendorList = await vendorList();
+        const bCategory = await GetAllBookCategories();
+        const sList = await subjectList();
+        const lang = await languageList();
+
+        setBlock(response.location);
+        setDepartment(
+          DeparmentList.departments?.map((item) => ({
+            value: item.class_name,
+            label: item.class_name,
+          })) || []
+        );
+        setProgramYear(
+          ProgramYearList.program_years?.map((item) => ({
+            value: item.id,
+            label: `${item.course_year}/${item.semester}`,
+          })) || []
+        );
+        setVendor(VendorList.vendors);
+        setProgramList(ProgramList.programs);
+        setBookCategory(bCategory.categories);
+        setAllSubjectList(sList.subjects);
+        setLanguage(lang.languages);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -61,9 +95,7 @@ export default function AddBook() {
   }, []);
 
   useEffect(() => {
-    if (location.pathname === `/${userType}/${branchId}/edit-book`) {
-      console.log(location.pathname);
-
+    if (location.pathname === `/${userType}/${branchID}/edit-book`) {
       setMode("edit");
     }
   }, [location.pathname]);
@@ -200,37 +232,6 @@ export default function AddBook() {
     }
   }, [bookDetails, setValue]);
 
-  // useEffect(() => {
-  //   if (bookDetails) {
-  //     console.log("publisher",bookDetails.book_name);
-  //     setValue("author", bookDetails.author || "");
-  //     setValue("blockName", bookDetails.blockName || "");
-  //     setValue("categoryName", bookDetails.category || "");
-  //     setValue("classNo", bookDetails.classNo || "");
-  //     setValue("dept", bookDetails.dept || "");
-  //     setValue("edition", bookDetails.edition || "");
-  //     setValue("entryDate", bookDetails.entryDate || "");
-  //     setValue("financialYear", bookDetails.financialYear || "");
-  //     setValue("isbnCode", bookDetails.isbnCode || "");
-  //     setValue("languages", bookDetails.languages || "");
-  //     setValue("material", bookDetails.material || "");
-  //     setValue("pageNo", bookDetails.pageNo || "");
-  //     setValue("pages", bookDetails.pages || "");
-  //     setValue("program", bookDetails.program || "");
-  //     setValue("programYear", bookDetails.programYear || "");
-  //     setValue("publicationPlace", bookDetails.publicationPlace || "");
-  //     setValue("publicationYear", bookDetails.publicationYear || "");
-  //     setValue("publishDate", bookDetails.publishDate || "");
-  //     setValue("publisher", bookDetails.publisher || "");
-  //     setValue("subMaterial", bookDetails.subMaterial || "");
-  //     setValue("title", bookDetails.title || "");
-  //     setValue("vendor", bookDetails.vendor || "");
-  //     setValue("volume", bookDetails.volume || "");
-  //     setValue("material", bookDetails.material || "");
-  //     setValue("subject", bookDetails.subject || "");
-  //   }
-  // }, [bookDetails, setValue]);
-
   useEffect(() => {
     // Set initial values for input fields based on each book object
     if (books.length > 0) {
@@ -274,17 +275,6 @@ export default function AddBook() {
       setValue("Accession", "");
     }, 0);
   };
-  //Dummy dept
-  const deptOptions = [
-    { value: "dept1", label: "dept 1" },
-    { value: "dept2", label: "dept 2" },
-  ];
-  //Dummy Program Year
-  const programYear = [
-    { value: "2023", label: "2023" },
-    { value: "2024", label: "2024" },
-  ];
-
   return (
     <Fragment>
       <Breadcrumbs
@@ -325,8 +315,8 @@ export default function AddBook() {
                             <option value="">Select Book Location</option>
                             {/* <option>Select block</option> */}
                             {block.map((b) => (
-                              <option key={b.id} value={b.block_name}>
-                                {b.block_name}
+                              <option key={b.id} value={b.block}>
+                                {b.block}
                               </option>
                             ))}
                           </select>
@@ -355,8 +345,11 @@ export default function AddBook() {
                         <>
                           <select {...field} className="form-control">
                             <option value="">Select Book Category</option>
-                            <option value="category1">Category 1</option>
-                            <option value="category2">Category 2</option>
+                            {bookCategory.map((b) => (
+                              <option key={b.id} value={b.category_name}>
+                                {b.category_name}
+                              </option>
+                            ))}
                           </select>
                         </>
                       )}
@@ -507,8 +500,11 @@ export default function AddBook() {
                         <>
                           <select {...field} className="form-control">
                             <option value="">Select Vendor</option>
-                            <option value="vendor 1">Vendor 1</option>
-                            <option value="vendor 2">Vendor 2</option>
+                            {vendor.map((v) => (
+                              <option key={v.id} value={v.vendor_name}>
+                                {v.vendor_name}
+                              </option>
+                            ))}
                           </select>
                         </>
                       )}
@@ -567,12 +563,11 @@ export default function AddBook() {
                         <>
                           <select {...field} className="form-control">
                             <option value="">Select Program</option>
-                            <option value="program1">
-                              Program Type 1/Program 1
-                            </option>
-                            <option value="program2">
-                              Program Type 2/Program 2
-                            </option>
+                            {programListData.map((p) => (
+                              <option key={p.course_id} value={p.course_type}>
+                                {p.course_type}
+                              </option>
+                            ))}
                           </select>
                         </>
                       )}
@@ -598,7 +593,7 @@ export default function AddBook() {
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
-                          <Select {...field} isMulti options={deptOptions} />
+                          <Select {...field} isMulti options={department} />
                         </>
                       )}
                     />
@@ -622,7 +617,11 @@ export default function AddBook() {
                       rules={{ required: true }}
                       render={({ field }) => (
                         <>
-                          <Select {...field} isMulti options={programYear} />
+                          <Select
+                            {...field}
+                            isMulti
+                            options={programYearData}
+                          />
                         </>
                       )}
                     />
@@ -744,8 +743,11 @@ export default function AddBook() {
                         <>
                           <select {...field} className="form-control">
                             <option value="">Select Language</option>
-                            <option value="active">Language 1</option>
-                            <option value="inactive">Language 2</option>
+                            {Language.map((l) => (
+                              <option key={l.id} value={l.language_name}>
+                                {l.language_name}
+                              </option>
+                            ))}
                           </select>
                         </>
                       )}
@@ -1113,8 +1115,11 @@ export default function AddBook() {
                         <>
                           <select {...field} className="form-control">
                             <option value="">Select Subject</option>
-                            <option value="Subject1">Subject 1</option>
-                            <option value="Subject2">Subject 2</option>
+                            {allsubjectList.map((s) => (
+                              <option key={s.id} value={s.subject_code}>
+                                {s.subject}
+                              </option>
+                            ))}
                           </select>
                         </>
                       )}
