@@ -13,7 +13,7 @@ RUN yarn install
 # Copy the entire project to the working directory
 COPY . .
 
-EXPOSE 3003
+EXPOSE 3000
 
 # Specify the command to run on container startup
 CMD ["npm", "run", "start"]
