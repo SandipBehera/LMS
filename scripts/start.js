@@ -110,7 +110,7 @@ checkBrowsers(paths.appPath, isInteractive)
     const serverConfig = {
       ...createDevServerConfig(proxyConfig, urls.lanUrlForConfig),
       host: HOST,
-      port: 3003,
+      port,
     };
     const devServer = new WebpackDevServer(serverConfig, compiler);
     // Launch WebpackDevServer.
