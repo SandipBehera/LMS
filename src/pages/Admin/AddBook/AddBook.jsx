@@ -43,7 +43,7 @@ export default function AddBook() {
   console.log("first", bookDetails);
 
   const [resetFlag, setResetFlag] = useState(false);
-  const [books, setBooks] = useState([bookDetails] || [{}]);
+  const [books, setBooks] = useState([bookDetails || {}]);
   const [block, setBlock] = useState([]);
   const [mode, setMode] = useState("add");
   const [department, setDepartment] = useState([]);
