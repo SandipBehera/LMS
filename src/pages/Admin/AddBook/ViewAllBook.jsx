@@ -10,26 +10,53 @@ import {
   Container,
   CardBody,
   CardHeader,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  Input,
+  Label,
+  FormGroup,
+  ModalFooter,
 } from "reactstrap";
 import { Breadcrumbs } from "../../../AbstractElements";
 import { Link } from "react-router-dom";
 import {
   getAllBooks,
-  UpdateBookLocation,
+ 
 } from "../../../api_handler/addbookapi";
 import "./css/datatable.css";
 import { userId } from "../../../Constant";
+import { GetAllBookLocation } from "../../../api_handler/booklocation";
+
 const ViewAllBooks = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [books, setBooks] = useState([]);
-
+  const [modalOpen, setModalOpen] = useState(false);
+  const [location, setLocation] = useState([]);
   const toggleDropdown = (id) => {
     setActiveDropdown(activeDropdown === id ? null : id);
   };
+
+  const toggleModal = () => {
+    setModalOpen(!modalOpen);
+  };
+
   const userType = localStorage.getItem("userType");
   const branchId = localStorage.getItem("branchId");
 
-  //fetch books
+  //fetch allbook location
+  useEffect(() => {
+    async function fetchBookLocations() {
+      try {
+        const response = await GetAllBookLocation();
+        console.log("location is", response.location);
+        setLocation(response.location);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+    fetchBookLocations();
+  }, []);
 
   useEffect(() => {
     async function fetchBooks() {
@@ -43,6 +70,14 @@ const ViewAllBooks = () => {
     }
     fetchBooks();
   }, []);
+
+  // const saveChanges = () => {
+  //   console.log("Changes saved");
+  // };
+
+  const toggleCancel = () => {
+    toggleModal();
+  };
 
   const columns = [
     {
@@ -111,12 +146,11 @@ const ViewAllBooks = () => {
             <DropdownItem>
               <Link to={`/${userType}/${userId}/copy-list`}>Copies List</Link>
             </DropdownItem>
-            <DropdownItem>Book Place</DropdownItem>
+            <DropdownItem onClick={toggleModal}>Book Place</DropdownItem>
             <DropdownItem>
               <Link to={`/${userType}/${userId}/add-damage`}>Add Damages</Link>
             </DropdownItem>
             <DropdownItem>
-              {" "}
               <Link
                 to={`/${userType}/${userId}/edit-book`}
                 state={{ bookDetails: row }}
@@ -125,13 +159,14 @@ const ViewAllBooks = () => {
               </Link>
             </DropdownItem>
             <DropdownItem>
-              {row.status === "Active" ? "Inactive" : "Active"}
+              {row.status === "active" ? "Inactive" : "Active"}
             </DropdownItem>
           </DropdownMenu>
         </Dropdown>
       ),
     },
   ];
+
   return (
     <Fragment>
       <Breadcrumbs
@@ -163,6 +198,89 @@ const ViewAllBooks = () => {
           </CardBody>
         </Card>
       </Container>
+
+      <Modal isOpen={modalOpen} toggle={toggleModal}>
+        <ModalHeader toggle={toggleModal}>Book Place</ModalHeader>
+        <ModalBody>
+          {location.map((block, index) => (
+            <div key={index}>
+              <FormGroup>
+                <Label
+                  for={`blockName_${index}`}
+                  className="font-size font-weight-bold"
+                  style={{ fontWeight: "bold" }}
+                >
+                  Block Name
+                </Label>
+                <Input type="select" id={`blockName_${index}`}>
+                  <option value={block.block}>{block.block}</option>
+                </Input>
+              </FormGroup>
+              <FormGroup>
+                <Label
+                  for={`shelfName_${index}`}
+                  className="font-size font-weight-bold"
+                  style={{ fontWeight: "bold" }}
+                >
+                  Shelf Name
+                </Label>
+                <Input type="select" id={`shelfName_${index}`}>
+                  <option value={block.shelf_name}>{block.shelf_name}</option>
+                </Input>
+              </FormGroup>
+              <FormGroup>
+                <Label
+                  for={`rackName_${index}`}
+                  className="font-size font-weight-bold"
+                  style={{ fontWeight: "bold" }}
+                >
+                  Rack Name
+                </Label>
+                <Input type="select" id={`rackName_${index}`}>
+                  <option value={block.rack_name}>{block.rack_name}</option>
+                </Input>
+              </FormGroup>
+            
+              <FormGroup>
+                <Label
+                  for={`subRackName_${index}`}
+                  className="font-size font-weight-bold"
+                  style={{ fontWeight: "bold" }}
+                >
+                  SubRack Name
+                </Label>
+                <Input type="select" id={`subRackName_${index}`}>
+                  <option value={block.sub_rack_name}>
+                    {block.sub_rack_name}
+                  </option>
+                </Input>
+              </FormGroup>
+              <FormGroup>
+                <Label
+                  for={`status_${index}`}
+                  className="font-size font-weight-bold"
+                  style={{ fontWeight: "bold" }}
+                >
+                  Status
+                </Label>
+                <Input type="select" id={`status_${index}`}>
+                  <option value={block.status}>
+                    {block.status}
+                  </option>
+                </Input>
+              </FormGroup>
+            </div>
+          ))}
+        </ModalBody>
+        <ModalFooter>
+          {/* <Button color="primary" onClick={saveChanges}>
+            Save Changes
+          </Button> */}
+          <Button color="secondary" onClick={toggleCancel}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
     </Fragment>
   );
 };
