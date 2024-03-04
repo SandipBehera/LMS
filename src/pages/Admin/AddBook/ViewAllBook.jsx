@@ -74,7 +74,7 @@ const ViewAllBooks = () => {
       name: "Status",
       cell: (row) => (
         <Button
-          color={row.status === "Active" ? "success" : "danger"}
+          color={row.status === "active" ? "success" : "danger"}
           className="px-3"
         >
           {row.status}
@@ -102,20 +102,18 @@ const ViewAllBooks = () => {
           >
             <DropdownItem>
               <Link
-                to={`/${userType}/${branchId}/add-inventory`}
+                to={`/${userType}/${userId}/add-inventory`}
                 state={{ bookDetails: row }}
               >
                 Book Inventory
               </Link>
             </DropdownItem>
             <DropdownItem>
-              <Link to={`/${userType}/${branchId}/copy-list`}>Copies List</Link>
+              <Link to={`/${userType}/${userId}/copy-list`}>Copies List</Link>
             </DropdownItem>
             <DropdownItem>Book Place</DropdownItem>
             <DropdownItem>
-              <Link to={`/${userType}/${branchId}/add-damage`}>
-                Add Damages
-              </Link>
+              <Link to={`/${userType}/${userId}/add-damage`}>Add Damages</Link>
             </DropdownItem>
             <DropdownItem>
               {" "}
