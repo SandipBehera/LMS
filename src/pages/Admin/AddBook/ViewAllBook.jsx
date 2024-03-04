@@ -17,7 +17,7 @@ import {
   getAllBooks,
   UpdateBookLocation,
 } from "../../../api_handler/addbookapi";
-
+import "./css/datatable.css";
 const ViewAllBooks = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [books, setBooks] = useState([]);
@@ -159,6 +159,7 @@ const ViewAllBooks = () => {
               style={{ height: "400px !important" }}
               overflowY
               theme="solarized"
+              className="custom-datatable"
             />
           </CardBody>
         </Card>
