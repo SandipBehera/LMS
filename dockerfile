@@ -9,6 +9,7 @@ COPY package*.json ./ yarn.lock ./
 
 # Install project dependencies
 RUN yarn install
+RUN yarn install react-dev-utils
 
 # Copy the entire project to the working directory
 COPY . .
