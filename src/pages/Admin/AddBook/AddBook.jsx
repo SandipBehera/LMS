@@ -819,12 +819,12 @@ export default function AddBook() {
                         <>
                           <select {...field} className="form-control">
                             <option value="">Select Sub Material Type</option>
-                            <option value="Ebook">Ebook</option>
-                            <option value="Text">Text</option>
-                            <option value="Cbb">CBB</option>
-                            <option value="Paperback">Paperback</option>
-                            <option value="Spiral">Spiral</option>
-                            <option value="Hardcover">Hardcover</option>
+                            <option value="ebook">Ebook</option>
+                            <option value="text">Text</option>
+                            <option value="cbb">CBB</option>
+                            <option value="paperback">Paperback</option>
+                            <option value="spiral">Spiral</option>
+                            <option value="hardcover">Hardcover</option>
                           </select>
                         </>
                       )}
