@@ -125,7 +125,7 @@ const ViewAllBooks = () => {
               </Link>
             </DropdownItem>
             <DropdownItem>
-              {row.status === "Active" ? "Inactive" : "Active"}
+              {row.status === "active" ? "Inactive" : "Active"}
             </DropdownItem>
           </DropdownMenu>
         </Dropdown>
