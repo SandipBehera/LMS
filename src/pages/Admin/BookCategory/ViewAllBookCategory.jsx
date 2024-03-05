@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import DataTable from "react-data-table-component";
 import {
   Button,
@@ -27,15 +27,16 @@ import {
   GetAllBookCategories,
   UpdateBookCategory,
 } from "../../../api_handler/bookcategory";
+import BulkUpload from "../../components/bulkUpload";
 
 const ViewAllBookCategory = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [tooltipOpen, setTooltipOpen] = useState(false);
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
 
   const [editableItem, setEditableItem] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
+
   const [data, setData] = useState([]);
   const [editedData, setEditedData] = useState({
     category: "",
@@ -50,7 +51,6 @@ const ViewAllBookCategory = () => {
     async function fetchData() {
       try {
         const response = await GetAllBookCategories();
-        console.log(response)
         setData(response.categories);
         setLoading(false); // Set loading to false once data is fetched
       } catch (error) {
@@ -143,18 +143,17 @@ const ViewAllBookCategory = () => {
       name: "S.no",
       selector: (row, index) => index + 1,
       sortable: true,
-      maxWidth:"150px"
+      maxWidth: "150px",
     },
     {
       name: "Book Category",
       selector: (row) => row.category_name,
-      maxWidth:"250px"
+      maxWidth: "250px",
     },
     {
       name: "Description",
       selector: (row) => row.category_description,
-      maxWidth:"250px"
-
+      maxWidth: "250px",
     },
     {
       name: "Status",
@@ -185,9 +184,7 @@ const ViewAllBookCategory = () => {
       ),
     },
   ];
-  const toggleTooltip = () => {
-    setTooltipOpen(!tooltipOpen);
-  };
+
   return (
     <Fragment>
       <Breadcrumbs
@@ -197,32 +194,7 @@ const ViewAllBookCategory = () => {
       />
       <Card>
         <Container>
-          <div className="d-flex justify-content-end align-items-center m-4">
-            <Button color="info" className="mx-4">
-              Bulk Upload
-            </Button>
-            <FiDownload
-              id="downloadIcon"
-              className="mx-4 text-primary"
-              style={{ fontSize: "1.8rem" }}
-            />
-            <Tooltip
-              placement="bottom"
-              isOpen={tooltipOpen}
-              target="downloadIcon"
-              toggle={toggleTooltip}
-            >
-              Download
-            </Tooltip>
-            <Input
-              className="mx-4"
-              type="text"
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ width: "250px" }} // Adjust the width as needed
-            />
-          </div>
+          <BulkUpload filetype={"category"} extension={"csv"} />
           <DataTable
             columns={columns}
             data={data}
