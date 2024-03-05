@@ -5,7 +5,7 @@ import { Button, Card, CardBody, Col, FormGroup, Label, Row } from "reactstrap";
 import { useForm, Controller } from "react-hook-form";
 import { FaRegArrowAltCircleRight } from "react-icons/fa";
 import { vendorList } from "../../../../api_handler/collegeInfo";
-import { Add_Book_Inventory, GetAllInventory, getItemCode } from "../../../../api_handler/bookInventory";
+import { Add_Book_Inventory, getItemCode } from "../../../../api_handler/bookInventory";
 import { branchID } from "../../../../Constant";
 import { toast } from "react-toastify";
 import useInitials from "../../../../Layout/getInitialsHook/GetInitials";
@@ -34,7 +34,8 @@ export default function BookInventory() {
 
   useEffect(()=>{
     setValue("itemCode", generatedItemCode);
-    setValue("vendor", bookDetails.book_vendor)
+    setValue("vendor", bookDetails.book_vendor);
+    setValue("itemCode", itemCode.itemCode || generatedItemCode);
 
   })
 
@@ -71,9 +72,6 @@ export default function BookInventory() {
   console.log(generatedItemCode);
   const userTypes = localStorage.getItem("userType");
   const userId = localStorage.getItem("userId")
-
- 
-  
 
   const onSubmit = (data) => {
     Add_Book_Inventory(
@@ -172,6 +170,7 @@ export default function BookInventory() {
                   <Controller
                     name="itemCode"
                     control={control}
+                    defaultValue={itemCode?.itemCode}
                     value={generatedItemCode} // Set defaultValue here
                     rules={{
                       required: true,
@@ -203,3 +202,24 @@ export default function BookInventory() {
     </Fragment>
   );
 }
+
+
+
+
+
+
+// useEffect(() => {
+//   async function fetchData() {
+//     try {
+//       const response = await  GetAllInventory();
+//       console.log("resp",response)
+    
+//       // Set loading to false once data is fetched
+//     } catch (error) {
+//       console.error("Error fetching data:", error);
+//       // Handle error, show an error message, etc.
+//       // Set loading to false in case of an error
+//     }
+//   }
+//   fetchData();
+// }, []);
