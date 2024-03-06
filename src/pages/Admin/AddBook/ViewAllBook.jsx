@@ -18,7 +18,7 @@ import {
   UpdateBookLocation,
 } from "../../../api_handler/addbookapi";
 import "./css/datatable.css";
-import { userId } from "../../../Constant";
+import { userId, userType } from "../../../Constant";
 const ViewAllBooks = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [books, setBooks] = useState([]);
@@ -26,8 +26,6 @@ const ViewAllBooks = () => {
   const toggleDropdown = (id) => {
     setActiveDropdown(activeDropdown === id ? null : id);
   };
-  const userType = localStorage.getItem("userType");
-  const branchId = localStorage.getItem("branchId");
 
   //fetch books
 

@@ -5,73 +5,51 @@ import { Button, Card, CardBody, Col, FormGroup, Label, Row } from "reactstrap";
 import { useForm, Controller } from "react-hook-form";
 import { FaRegArrowAltCircleRight } from "react-icons/fa";
 import { vendorList } from "../../../../api_handler/collegeInfo";
-import { Add_Book_Inventory, getItemCode } from "../../../../api_handler/bookInventory";
-import { branchID } from "../../../../Constant";
+import {
+  Add_Book_Inventory,
+  getItemCode,
+} from "../../../../api_handler/bookInventory";
+import { branchID, userId, userType } from "../../../../Constant";
 import { toast } from "react-toastify";
 import useInitials from "../../../../Layout/getInitialsHook/GetInitials";
 
 export default function BookInventory() {
   const location = useLocation();
   const { bookDetails } = location.state || {};
-  const [itemCode, setItemCode]=useState("");
- 
-
-  console.log(bookDetails)
-
-  const initials  = useInitials(bookDetails.book_name);
-
-
+  const [itemCode, setItemCode] = useState("");
+  const initials = useInitials(bookDetails.book_name);
   const {
     control,
     handleSubmit,
     setValue,
-  
     formState: { errors },
   } = useForm();
-
-
   const [generatedItemCode, setGeneratedItemCode] = useState("");
-
-  useEffect(()=>{
+  useEffect(() => {
     setValue("itemCode", generatedItemCode);
     setValue("vendor", bookDetails.book_vendor);
     setValue("itemCode", itemCode.itemCode || generatedItemCode);
-
-  })
-
-  useEffect(()=>{
-    getItemCode(bookDetails.id, branchID ).then(data=>{
+  });
+  useEffect(() => {
+    getItemCode(bookDetails.id, branchID).then((data) => {
       setItemCode(data);
-      console.log(data)
-    })
-  },[])
-  console.log(initials)
+      console.log(data);
+    });
+  }, []);
 
   useEffect(() => {
-    
-  
     const generateRandomCode = () => {
       const randomCode = initials + Math.floor(Math.random() * 10000);
       setGeneratedItemCode(randomCode);
     };
-    
-    if(initials && itemCode?.duplicate==="false")
-    {
+
+    if (initials && itemCode?.duplicate === "false") {
       generateRandomCode();
     }
-    if(itemCode?.itemCode){
+    if (itemCode?.itemCode) {
       setGeneratedItemCode(itemCode?.itemCode);
     }
-  
-
   }, [initials, itemCode]);
-
-  console.log(itemCode)
-
-  
-  console.log(generatedItemCode);
-  const userTypes = localStorage.getItem("userType");
-  const userId = localStorage.getItem("userId")
 
   const onSubmit = (data) => {
     Add_Book_Inventory(
@@ -80,12 +58,10 @@ export default function BookInventory() {
       data.totalUnits,
       bookDetails.id,
       branchID
-      
     ).then((res) => {
-      console.log("first", res);
       if (res.status === "success") {
         toast.success(res.message);
-        window.location.replace(`/lms/${userTypes}/${userId}/view-books`);
+        window.location.replace(`/lms/${userType}/${userId}/view-books`);
       } else if (res.status === "error") {
         toast.error(res.message);
       }
@@ -102,11 +78,21 @@ export default function BookInventory() {
       <Card className="p-4">
         <div className="d-flex justify-content-around mx-4">
           <div className="text-center">
-            <span className="font-size font-weight-bold text-center" style={{ fontWeight: "bold" }}>Book Title:</span>{" "}
+            <span
+              className="font-size font-weight-bold text-center"
+              style={{ fontWeight: "bold" }}
+            >
+              Book Title:
+            </span>{" "}
             <span>{bookDetails.book_name}</span>
           </div>
           <div className="text-center">
-            <span className="font-size font-weight-bold" style={{ fontWeight: "bold" }}>Material Type:</span>{" "}
+            <span
+              className="font-size font-weight-bold"
+              style={{ fontWeight: "bold" }}
+            >
+              Material Type:
+            </span>{" "}
             <span>{bookDetails.book_material_type}</span>
           </div>
         </div>
@@ -115,7 +101,12 @@ export default function BookInventory() {
             <FormGroup>
               <Row className="p-2">
                 <Col md={6}>
-                  <Label className="font-size font-weight-bold" style={{ fontWeight: "bold" }}>Vendor</Label>
+                  <Label
+                    className="font-size font-weight-bold"
+                    style={{ fontWeight: "bold" }}
+                  >
+                    Vendor
+                  </Label>
                   <Controller
                     name="vendor"
                     control={control}
@@ -130,8 +121,12 @@ export default function BookInventory() {
                       //     </option>
                       //   ))}
                       // </select>
-                      <input {...field} className="form-control" maxLength={20} disabled/>
-                      
+                      <input
+                        {...field}
+                        className="form-control"
+                        maxLength={20}
+                        disabled
+                      />
                     )}
                   />
                   {errors.vendor?.type === "required" && (
@@ -140,7 +135,12 @@ export default function BookInventory() {
                 </Col>
 
                 <Col md={6}>
-                  <Label className="font-size font-weight-bold" style={{ fontWeight: "bold" }}>Total Units</Label>
+                  <Label
+                    className="font-size font-weight-bold"
+                    style={{ fontWeight: "bold" }}
+                  >
+                    Total Units
+                  </Label>
                   <Controller
                     name="totalUnits"
                     control={control}
@@ -150,14 +150,20 @@ export default function BookInventory() {
                       pattern: /^[0-9.]+$/i,
                     }}
                     render={({ field }) => (
-                      <input {...field} className="form-control" maxLength={20} />
+                      <input
+                        {...field}
+                        className="form-control"
+                        maxLength={20}
+                      />
                     )}
                   />
                   {errors.totalUnits?.type === "required" && (
                     <p className="text-danger">Book total units is required</p>
                   )}
                   {errors.totalUnits?.type === "maxLength" && (
-                    <p className="text-danger">Book total units should be maximum 20 characters</p>
+                    <p className="text-danger">
+                      Book total units should be maximum 20 characters
+                    </p>
                   )}
                   {errors.totalUnits?.type === "pattern" && (
                     <p className="text-danger">Numbers only</p>
@@ -166,7 +172,12 @@ export default function BookInventory() {
               </Row>
               <Row className="p-2">
                 <Col md={6}>
-                  <Label className="font-size font-weight-bold" style={{ fontWeight: "bold" }}>Item Code</Label>
+                  <Label
+                    className="font-size font-weight-bold"
+                    style={{ fontWeight: "bold" }}
+                  >
+                    Item Code
+                  </Label>
                   <Controller
                     name="itemCode"
                     control={control}
@@ -176,14 +187,16 @@ export default function BookInventory() {
                       required: true,
                     }}
                     render={({ field }) => (
-                      <input {...field} className="form-control"  disabled />
+                      <input {...field} className="form-control" disabled />
                     )}
                   />
                   {errors.itemCode?.type === "required" && (
                     <p className="text-danger">Item code is required</p>
                   )}
                   {errors.itemCode?.type === "maxLength" && (
-                    <p className="text-danger">Item code should be maximum 20 characters</p>
+                    <p className="text-danger">
+                      Item code should be maximum 20 characters
+                    </p>
                   )}
                   {errors.itemCode?.type === "pattern" && (
                     <p className="text-danger">Numbers only</p>
@@ -202,24 +215,3 @@ export default function BookInventory() {
     </Fragment>
   );
 }
-
-
-
-
-
-
-// useEffect(() => {
-//   async function fetchData() {
-//     try {
-//       const response = await  GetAllInventory();
-//       console.log("resp",response)
-    
-//       // Set loading to false once data is fetched
-//     } catch (error) {
-//       console.error("Error fetching data:", error);
-//       // Handle error, show an error message, etc.
-//       // Set loading to false in case of an error
-//     }
-//   }
-//   fetchData();
-// }, []);
