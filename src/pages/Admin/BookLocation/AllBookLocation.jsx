@@ -29,7 +29,7 @@ import {
 import { FiDownload } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { branchID } from "../../../Constant";
-
+import BulkUpload from "../../components/bulkUpload";
 
 export default function AllBookLocation() {
   const [data, setData] = useState([]);
@@ -76,7 +76,7 @@ export default function AllBookLocation() {
     fetchData();
   }, []);
 
-  console.log(block)
+  console.log(block);
 
   const toggleStatusDropdown = () => {
     setStatusDropdownOpen(!statusDropdownOpen);
@@ -90,7 +90,6 @@ export default function AllBookLocation() {
   const toggleTooltip = () => {
     setTooltipOpen(!tooltipOpen);
   };
-
 
   const handleEdit = (id) => {
     setEditableItem(id);
@@ -195,29 +194,7 @@ export default function AllBookLocation() {
       />
       <Card>
         <Container>
-          
-        <div className="d-flex justify-content-end align-items-center m-4">
-            <Button color="info" className="mx-4">
-              Bulk Upload
-            </Button>
-            <FiDownload
-              id="downloadIcon"
-              className="mx-4 text-primary"
-              style={{ fontSize: "1.8rem" }}
-            />
-            <Tooltip
-              placement="bottom"
-              isOpen={tooltipOpen}
-              target="downloadIcon"
-              toggle={toggleTooltip}
-            >
-              Download
-            </Tooltip>
-            <Link to={`/${userType}/${branchID}/add-book-location`}>
-              <Button className="mx-4">Add Book Location</Button>
-            </Link>
-          </div>
-
+          <BulkUpload filetype={"location"} extension={"csv"} />
           <DataTable
             columns={columns}
             data={data}
