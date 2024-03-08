@@ -85,3 +85,13 @@ export const UploadBulkCategory = async (data) => {
     body: JSON.stringify(data),
   }).then((response) => response.json());
 };
+
+export const MakeInactive = async (id, type, status) => {
+  return await fetch(`${WebApi}/inactive-types/${id}/${type}/${status}`, {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      cookie: document.cookie,
+    },
+  }).then((response) => response.json());
+};

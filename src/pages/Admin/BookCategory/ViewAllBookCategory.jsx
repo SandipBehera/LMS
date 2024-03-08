@@ -25,6 +25,7 @@ import { FiDownload } from "react-icons/fi";
 import { Breadcrumbs } from "../../../AbstractElements";
 import {
   GetAllBookCategories,
+  MakeInactive,
   UpdateBookCategory,
 } from "../../../api_handler/bookcategory";
 import BulkUpload from "../../components/bulkUpload";
@@ -65,11 +66,6 @@ const ViewAllBookCategory = () => {
   const toggleStatusDropdown = () => {
     setStatusDropdownOpen(!statusDropdownOpen);
   };
-  //   const toggleDropdown = (id) => {
-  //     setDropdownOpen(!dropdownOpen);
-  //     setSelectedItemId(id);
-  //   };
-
   const toggleEditModal = () => {
     setEditModalOpen(!editModalOpen);
   };
@@ -125,13 +121,22 @@ const ViewAllBookCategory = () => {
   //filter functionality
 
   //book will disapear
-  const changeStatus = (id) => {
-    setData((prevData) =>
-      prevData.map((item) =>
-        item.id === id ? { ...item, status: "inactive", hidden: true } : item
-      )
-    );
-    setDropdownOpen(false);
+  const changeStatus = (id, status) => {
+    const newStatus = status === "active" ? "inactive" : "active";
+    MakeInactive(id, "category", newStatus).then((response) => {
+      if (response.status === "success") {
+        setData((prevData) =>
+          prevData.map((item) =>
+            item.id === id ? { ...item, status: newStatus, hidden: true } : item
+          )
+        );
+        setDropdownOpen(false);
+        toast.success("Book Category inactivated Successfully");
+      } else {
+        setDropdownOpen(false);
+        toast.error("Error inactivating Book Category");
+      }
+    });
   };
 
   //const filteredData = data.filter((item) => !item.hidden);
@@ -176,8 +181,8 @@ const ViewAllBookCategory = () => {
           <DropdownToggle caret>Action</DropdownToggle>
           <DropdownMenu>
             <DropdownItem onClick={() => handleEdit(row.id)}>Edit</DropdownItem>
-            <DropdownItem onClick={() => changeStatus(row.id)}>
-              Inactivate
+            <DropdownItem onClick={() => changeStatus(row.id, row.status)}>
+              {row.status === "active" ? "Inactivate" : "Activate"}
             </DropdownItem>
           </DropdownMenu>
         </Dropdown>

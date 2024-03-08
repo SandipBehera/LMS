@@ -30,6 +30,7 @@ import { FiDownload } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { branchID } from "../../../Constant";
 import BulkUpload from "../../components/bulkUpload";
+import { MakeInactive } from "../../../api_handler/bookcategory";
 
 export default function AllBookLocation() {
   const [data, setData] = useState([]);
@@ -46,9 +47,6 @@ export default function AllBookLocation() {
     status: "",
   });
   const [block, setBlock] = useState([]);
-  const [tooltipOpen, setTooltipOpen] = useState(false);
-
-  const userType = localStorage.getItem("userType");
 
   useEffect(() => {
     async function fetchLocations() {
@@ -76,8 +74,6 @@ export default function AllBookLocation() {
     fetchData();
   }, []);
 
-  console.log(block);
-
   const toggleStatusDropdown = () => {
     setStatusDropdownOpen(!statusDropdownOpen);
   };
@@ -87,10 +83,6 @@ export default function AllBookLocation() {
   const toggleDropdown = (id) => {
     setActiveDropdown(activeDropdown === id ? null : id);
   };
-  const toggleTooltip = () => {
-    setTooltipOpen(!tooltipOpen);
-  };
-
   const handleEdit = (id) => {
     setEditableItem(id);
     const bookToEdit = data.find((elem) => elem.id === id);
@@ -136,6 +128,23 @@ export default function AllBookLocation() {
       }
     });
   };
+  const changeStatus = (id, status) => {
+    const newStatus = status === "active" ? "inactive" : "active";
+    MakeInactive(id, "location", newStatus).then((response) => {
+      if (response.status === "success") {
+        setData((prevData) =>
+          prevData.map((item) =>
+            item.id === id ? { ...item, status: newStatus, hidden: true } : item
+          )
+        );
+        toggleDropdown(id);
+        toast.success("Book Category inactivated Successfully");
+      } else {
+        toggleDropdown(id);
+        toast.error("Error inactivating Book Category");
+      }
+    });
+  };
 
   const columns = [
     {
@@ -176,7 +185,7 @@ export default function AllBookLocation() {
           <DropdownToggle caret>Action</DropdownToggle>
           <DropdownMenu>
             <DropdownItem onClick={() => handleEdit(row.id)}>Edit</DropdownItem>
-            <DropdownItem onClick={() => handleStatus(row.id)}>
+            <DropdownItem onClick={() => changeStatus(row.id, row.status)}>
               {row.status === "active" ? "Inactive" : "Active"}
             </DropdownItem>
           </DropdownMenu>

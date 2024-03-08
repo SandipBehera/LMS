@@ -39,7 +39,7 @@ const RedirectionPage = () => {
           localStorage.setItem("login", JSON.stringify(true));
           localStorage.setItem("authenticated", JSON.stringify(true));
           localStorage.setItem("userId", data.data.user_id);
-          localStorage.setItem("Name", data.data.name);
+          localStorage.setItem("Name", data.data.first_name);
           localStorage.setItem("userType", data.data.user_type);
           localStorage.setItem("branchId", branchId);
           localStorage.setItem("campusName", campus_name);
