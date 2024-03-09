@@ -8,16 +8,20 @@ import {
   Col,
   Label,
   Input,
+  Spinner,
 } from "reactstrap";
 import { useForm, Controller } from "react-hook-form";
 import { Breadcrumbs } from "../../../AbstractElements";
 import Select from "react-select";
 import BookAdding from "./Components/BookAdding";
 import { IoIosAddCircle, IoMdClose } from "react-icons/io";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { MdCancel } from "react-icons/md";
 import { UpdateBookLocation, addBook } from "../../../api_handler/addbookapi";
 import { toast } from "react-toastify";
+import "./css/datatable.css";
+
+
 import {
   departmentInfo,
   languageList,
@@ -42,6 +46,8 @@ export default function AddBook() {
   } = useForm();
   console.log("first", bookDetails);
 
+  const navigate = useNavigate();
+
   const [resetFlag, setResetFlag] = useState(false);
   const [books, setBooks] = useState([bookDetails || {}]);
   const [block, setBlock] = useState([]);
@@ -53,10 +59,12 @@ export default function AddBook() {
   const [bookCategory, setBookCategory] = useState([]);
   const [allsubjectList, setAllSubjectList] = useState([]);
   const [Language, setLanguage] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
       try {
+        setIsLoading(true);
         const response = await GetAllBookLocation();
         const ProgramList = await programList();
         const DeparmentList = await departmentInfo();
@@ -66,24 +74,36 @@ export default function AddBook() {
         const sList = await subjectList();
         const lang = await languageList();
 
-        setBlock(response.location);
-        setDepartment(
-          DeparmentList.departments?.map((item) => ({
-            value: item.class_name,
-            label: item.class_name,
-          })) || []
-        );
-        setProgramYear(
-          ProgramYearList.program_years?.map((item) => ({
-            value: item.id,
-            label: `${item.course_year}/${item.semester}`,
-          })) || []
-        );
-        setVendor(VendorList.vendors);
-        setProgramList(ProgramList.programs);
-        setBookCategory(bCategory.categories);
-        setAllSubjectList(sList.subjects);
-        setLanguage(lang.languages);
+        console.log("response", response)
+
+        if(response===undefined||ProgramList===undefined || DeparmentList===undefined||VendorList===undefined||bCategory===undefined||sList===undefined||lang===undefined)
+        {
+          // setIsLoading(true);
+        }
+        else{
+          setIsLoading(false)
+          
+          setBlock(response.location);
+          setDepartment(
+            DeparmentList.departments?.map((item) => ({
+              value: item.class_name,
+              label: item.class_name,
+            })) || []
+          );
+          setProgramYear(
+            ProgramYearList.program_years?.map((item) => ({
+              value: item.id,
+              label: `${item.course_year}/${item.semester}`,
+            })) || []
+          );
+          setVendor(VendorList.vendors);
+          setProgramList(ProgramList.programs);
+          setBookCategory(bCategory.categories);
+          setAllSubjectList(sList.subjects);
+          setLanguage(lang.languages);
+        }
+
+
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -209,6 +229,8 @@ export default function AddBook() {
       setValue("pages", bookDetails.pages || "");
       setValue("program", bookDetails.program || "");
       setValue("program_year", bookDetails.program_year || "");
+      setValue("book_sub_material_type", bookDetails.book_sub_material_type || "");
+
       setValue(
         "book_place_publication",
         bookDetails.book_place_publication || ""
@@ -219,10 +241,6 @@ export default function AddBook() {
       );
       // setValue("published_year", bookDetails.published_year || "");
       setValue("book_publisher", bookDetails.book_publisher || "");
-      setValue(
-        "book_sub_material_type",
-        bookDetails.book_sub_material_type || ""
-      );
       setValue("book_name", bookDetails.book_name || "");
       setValue("book_vendor", bookDetails.book_vendor || "");
       setValue("book_volume", bookDetails.book_volume || "");
@@ -242,7 +260,9 @@ export default function AddBook() {
   }, [books, setValue]);
 
   const handleCancel = () => {
-    setResetFlag(true);
+    if(mode==="add")
+    {
+      setResetFlag(true);
     setTimeout(() => {
       setResetFlag(false);
       setValue("author", "");
@@ -272,6 +292,10 @@ export default function AddBook() {
       setValue("subject", "");
       setValue("Accession", "");
     }, 0);
+    }
+    else{
+      navigate(`/${userType}/${userId}/view-books`)
+    }
   };
   return (
     <Fragment>
@@ -282,6 +306,11 @@ export default function AddBook() {
       />
       <Card>
         <CardBody>
+        {isLoading && (
+          <div className="spinner-overlay fs-3">
+            <Spinner color="primary" style={{width:"3rem", height:"3rem"}} />
+          </div>
+        )}
           <form onSubmit={handleSubmit(onSubmit)}>
             {books.map((book, index) => (
               <FormGroup key={index}>
@@ -790,12 +819,12 @@ export default function AddBook() {
                         <>
                           <select {...field} className="form-control">
                             <option value="">Select Sub Material Type</option>
-                            <option value="Ebook">Ebook</option>
-                            <option value="Text">Text</option>
-                            <option value="Cbb">CBB</option>
-                            <option value="Paperback">Paperback</option>
-                            <option value="Spiral">Spiral</option>
-                            <option value="Hardcover">Hardcover</option>
+                            <option value="ebook">Ebook</option>
+                            <option value="text">Text</option>
+                            <option value="cbb">CBB</option>
+                            <option value="paperback">Paperback</option>
+                            <option value="spiral">Spiral</option>
+                            <option value="hardcover">Hardcover</option>
                           </select>
                         </>
                       )}
@@ -1072,6 +1101,7 @@ export default function AddBook() {
             </div>
           </form>
         </CardBody>
+       
       </Card>
     </Fragment>
   );
